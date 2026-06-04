@@ -1,0 +1,162 @@
+import { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, Menu, LogOut, Settings, Check } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
+
+const PAGE_TITLES = {
+  '/dashboard': 'Dashboard',
+  '/analytics': 'Analytics',
+  '/goals': 'Goals',
+  '/settings': 'Settings',
+  '/insights': 'AI Insights',
+  '/contests': 'Contests',
+  '/daily': 'Daily Problems',
+  '/year': 'Year in Code',
+  '/job-tracker': 'Job Tracker',
+  '/job-tracker/applications': 'Applications',
+  '/job-tracker/emails': 'Email Accounts',
+  '/live-jobs': 'Live Jobs',
+};
+
+const Navbar = ({ onMenuToggle }) => {
+  const { user, logout } = useAuth();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const notifRef = useRef(null);
+  const { unreadCount, notifications, fetchNotifications, markAllRead } = useNotifications();
+
+  const initials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'U';
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <header className="h-16 flex items-center justify-between px-6 border-b border-white/8 bg-[#111118]/80 backdrop-blur-md shrink-0">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuToggle}
+          className="md:hidden text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+        >
+          <Menu size={20} />
+        </button>
+        <h1 className="text-base font-semibold text-white hidden md:block">
+          {PAGE_TITLES[pathname] || 'Alvora'}
+        </h1>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {/* Notification bell */}
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={() => { setNotifOpen((v) => !v); if (!notifOpen) fetchNotifications(); }}
+            className="relative text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-500 text-[9px] font-bold text-white flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          <AnimatePresence>
+            {notifOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-gray-900/95 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+              >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
+                  <p className="text-sm font-semibold text-white">Notifications</p>
+                  {unreadCount > 0 && (
+                    <button onClick={markAllRead} className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1">
+                      <Check size={11} /> Mark all read
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-64 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-6">No notifications yet</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div key={n._id} className={`px-4 py-3 border-b border-white/5 last:border-0 ${!n.read ? 'bg-violet-500/5' : ''}`}>
+                        <p className="text-sm text-gray-200">{n.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{n.message}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Avatar + dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen((v) => !v)}
+            className="flex items-center gap-2.5 hover:bg-white/5 rounded-xl px-2 py-1.5 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-xs font-bold text-white">
+              {initials}
+            </div>
+            <div className="hidden sm:block text-left">
+              <p className="text-sm font-medium text-white leading-tight">{user?.name}</p>
+              <p className="text-xs text-gray-400 leading-tight">{user?.email}</p>
+            </div>
+          </button>
+
+          <AnimatePresence>
+            {dropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-12 w-48 backdrop-blur-xl bg-gray-900/95 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+              >
+                <button
+                  onClick={() => { navigate('/settings'); setDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <Settings size={15} />
+                  Settings
+                </button>
+                <div className="border-t border-white/8" />
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors"
+                >
+                  <LogOut size={15} />
+                  Sign out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Navbar;
