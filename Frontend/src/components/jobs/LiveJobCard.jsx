@@ -2,11 +2,13 @@ import { motion } from 'framer-motion';
 import { MapPin, Wifi, Briefcase } from 'lucide-react';
 import LiveBadge from './LiveBadge';
 import ApplyButton from './ApplyButton';
+import CompanyLogo from './CompanyLogo';
 
 const SOURCE_COLORS = {
   greenhouse: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
   lever: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
   ashby: 'bg-violet-500/10 text-violet-400 border border-violet-500/20',
+  workday: 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
   company_api: 'bg-gray-500/10 text-gray-400 border border-gray-500/20',
 };
 
@@ -16,14 +18,6 @@ const EMPLOYMENT_LABELS = {
   contract: 'Contract',
   internship: 'Internship',
 };
-
-const getCompanyInitials = (company) =>
-  (company || '?')
-    .split(/[\s-]/)
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
 
 const GRADIENT_PAIRS = [
   'from-violet-500 to-purple-600',
@@ -64,18 +58,16 @@ const LiveJobCard = ({ job, index = 0, isNew = false, isApplied = false, onAppli
     >
       {/* Gradient glow for new jobs */}
       {showAsNew && (
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none rounded-2xl" />
+        <div className="absolute inset-0 bg-linear-to-br from-violet-500/5 to-transparent pointer-events-none rounded-2xl" />
       )}
 
       {/* Top row: company + live badge */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          {/* Company logo placeholder */}
-          <div
-            className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getGradient(job.company)} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-lg`}
-          >
-            {getCompanyInitials(job.company)}
-          </div>
+          <CompanyLogo
+            company={job.company}
+            gradient={getGradient(job.company)}
+          />
           <div>
             <p className="text-sm font-semibold text-white leading-tight">{companyDisplay}</p>
             {job.source && (

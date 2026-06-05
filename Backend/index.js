@@ -98,6 +98,10 @@ connectDB().then(() => {
     startGhostingDetectionJob();
     startJobMonitorJob();
     startPotdSyncJob();
+    // Always start the job notification worker so the event bus has a listener
+    // even when Redis is unavailable (it gracefully skips queue ops but still
+    // delivers real-time WebSocket pushes via emitToUser)
+    startJobNotificationWorker();
     if (process.env.REDIS_URL) {
       startSnapshotWorker();
       startNotificationWorker();
@@ -105,7 +109,6 @@ connectDB().then(() => {
       startEmailSyncWorker();
       startGreenhouseMonitorWorker();
       startLeverMonitorWorker();
-      startJobNotificationWorker();
       startJobProcessingWorker();
       startPriorityMonitorWorkers();
     } else {

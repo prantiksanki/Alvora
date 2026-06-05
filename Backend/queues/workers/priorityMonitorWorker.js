@@ -4,13 +4,13 @@ const logger = require('../../utils/logger');
 
 /**
  * Job payload for priority monitor queues:
- *   { provider: 'greenhouse'|'lever'|'ashby', companySlug: string, companyName: string }
+ *   { provider: 'greenhouse'|'lever'|'ashby'|'workday', companySlug: string, companyName: string, identifier?: string }
  */
 const processPriorityMonitor = async (job) => {
-  const { provider, companySlug, companyName } = job.data;
+  const { provider, companySlug, companyName, identifier } = job.data;
   // Lazy require avoids circular dependency at module load time
   const { runSync } = require('../../services/job-monitor/monitoringEngine');
-  const result = await runSync(provider, companySlug);
+  const result = await runSync(provider, companySlug, identifier);
   logger.info('Priority monitor sync completed', { provider, companySlug, companyName, ...result });
   return result;
 };

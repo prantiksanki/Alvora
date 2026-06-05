@@ -58,6 +58,8 @@ const CheckOption = ({ label, value, checked, onChange }) => (
 const SOURCES = [
   { label: 'Greenhouse', value: 'greenhouse' },
   { label: 'Lever', value: 'lever' },
+  { label: 'Ashby', value: 'ashby' },
+  { label: 'Workday', value: 'workday' },
 ];
 
 const EMPLOYMENT_TYPES = [

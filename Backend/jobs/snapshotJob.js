@@ -46,9 +46,9 @@ const runSync = async () => {
 };
 
 const startSnapshotJob = () => {
-  // Runs at minute 0 of every 6th hour: 00:00, 06:00, 12:00, 18:00 UTC
-  cron.schedule('0 */6 * * *', runSync, { timezone: 'UTC' });
-  logger.info('Snapshot job scheduled — runs every 6 hours');
+  // Runs at minute 0 of every 5th hour: 00:00, 05:00, 10:00, 15:00, 20:00 UTC
+  cron.schedule('0 */5 * * *', runSync, { timezone: 'UTC' });
+  logger.info('Snapshot job scheduled — runs every 5 hours');
 };
 
 module.exports = { startSnapshotJob, runSync };

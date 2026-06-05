@@ -3,10 +3,10 @@ const { bullConnection } = require('../../config/redis');
 const logger = require('../../utils/logger');
 
 const processGreenhouseMonitor = async (job) => {
-  const { companySlug } = job.data;
+  const { companySlug, identifier } = job.data;
   // Lazy require avoids circular dependency issues at module load time
   const { runSync } = require('../../services/job-monitor/monitoringEngine');
-  const result = await runSync('greenhouse', companySlug);
+  const result = await runSync('greenhouse', companySlug, identifier);
   logger.info('Greenhouse monitor sync completed', { companySlug, ...result });
   return result;
 };

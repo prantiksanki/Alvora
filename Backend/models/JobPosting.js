@@ -12,7 +12,7 @@ const jobPostingSchema = new mongoose.Schema({
   remote: { type: Boolean, default: false },
   source: {
     type: String,
-    enum: ['greenhouse', 'lever', 'ashby', 'company_api'],
+    enum: ['greenhouse', 'lever', 'ashby', 'workday', 'company_api'],
     required: true,
   },
   externalJobId: { type: String, required: true },

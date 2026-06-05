@@ -27,15 +27,23 @@ const runMonitorForPriority = async (priority) => {
     const queue = getPriorityQueue(priority);
     if (queue) {
       for (const company of companies) {
+        // For Workday, companySlug is the display name (lowercase), identifier is the full tenant|wd|board string
+        const companySlug = company.provider === 'workday'
+          ? company.name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+          : company.identifier;
         await queue.add(
           'monitor',
-          { provider: company.provider, companySlug: company.identifier, companyName: company.name },
           {
-            // BullMQ dedup: skip if this company already has a pending job in the queue
-            jobId: `${company.provider}-${company.identifier}`,
+            provider: company.provider,
+            companySlug,
+            companyName: company.name,
+            identifier: company.identifier, // Workday needs this; others ignore it
+          },
+          {
+            jobId: `${company.provider}-${company.name.toLowerCase().replace(/\s+/g, '-')}`,
           }
         ).catch((err) =>
-          logger.error('Failed to enqueue company', { company: company.identifier, error: err.message })
+          logger.error('Failed to enqueue company', { company: company.name, error: err.message })
         );
       }
       return;
@@ -45,8 +53,11 @@ const runMonitorForPriority = async (priority) => {
   // Direct fallback — runs synchronously (no Redis required)
   const { runSync } = require('../services/job-monitor/monitoringEngine');
   for (const company of companies) {
+    const companySlug = company.provider === 'workday'
+      ? company.name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+      : company.identifier;
     try {
-      await runSync(company.provider, company.identifier);
+      await runSync(company.provider, companySlug, company.identifier);
     } catch (err) {
       logger.error('Direct sync failed', { company: company.identifier, provider: company.provider, error: err.message });
     }

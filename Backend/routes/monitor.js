@@ -13,7 +13,7 @@ router.get(
   '/registry',
   validate([
     query('priority').optional().isIn(['high', 'medium', 'low']),
-    query('provider').optional().isIn(['greenhouse', 'lever', 'ashby']),
+    query('provider').optional().isIn(['greenhouse', 'lever', 'ashby', 'workday']),
     query('page').optional().isInt({ min: 1 }).toInt(),
     query('limit').optional().isInt({ min: 1, max: 200 }).toInt(),
     query('search').optional().isString().trim().isLength({ max: 100 }),
@@ -39,7 +39,7 @@ router.get(
 router.post(
   '/sync',
   validate([
-    body('provider').optional().isIn(['greenhouse', 'lever', 'ashby']),
+    body('provider').optional().isIn(['greenhouse', 'lever', 'ashby', 'workday']),
     body('identifier').optional().isString().trim().matches(/^[a-zA-Z0-9-]+$/),
     body('priority').optional().isIn(['high', 'medium', 'low']),
   ]),

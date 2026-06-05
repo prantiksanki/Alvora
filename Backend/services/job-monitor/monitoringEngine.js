@@ -3,6 +3,7 @@ const JobSyncHistory = require('../../models/JobSyncHistory');
 const greenhouseService = require('../job-sources/greenhouse/greenhouseService');
 const leverService = require('../job-sources/lever/leverService');
 const ashbyService = require('../job-sources/ashby/ashbyService');
+const workdayService = require('../job-sources/workday/workdayService');
 const { findMatchedUserIds } = require('./subscriptionMatcher');
 const jobEventBus = require('./jobEventBus');
 const logger = require('../../utils/logger');
@@ -11,20 +12,23 @@ const SOURCE_SERVICES = {
   greenhouse: greenhouseService,
   lever: leverService,
   ashby: ashbyService,
+  workday: workdayService,
 };
 
-const SLUG_PATTERN = /^[a-zA-Z0-9-]+$/;
+// Workday identifiers contain | so we allow that character
+const SLUG_PATTERN = /^[a-zA-Z0-9|_-]+$/;
 
 /**
  * Run a full incremental sync for a given source + company slug.
  * Detects new, updated, and removed job postings.
  * Emits 'new-job-detected' on jobEventBus for matched subscribers.
  *
- * @param {'greenhouse'|'lever'|'ashby'} source
- * @param {string} companySlug
+ * @param {'greenhouse'|'lever'|'ashby'|'workday'} source
+ * @param {string} companySlug  — for workday: "companyName" (identifier is separate in registry)
+ * @param {string} [identifier] — Workday-specific: "tenant|wdInstance|boardId"
  * @returns {Promise<{ newJobs: number, updatedJobs: number, removedJobs: number, jobsFetched: number }>}
  */
-const runSync = async (source, companySlug) => {
+const runSync = async (source, companySlug, identifier) => {
   if (!SLUG_PATTERN.test(companySlug)) {
     throw new Error(`Invalid company slug: "${companySlug}"`);
   }
@@ -43,8 +47,11 @@ const runSync = async (source, companySlug) => {
   const errors = [];
   let rawJobs = [];
 
+  // Workday needs the identifier (tenant|wdInstance|boardId) in addition to the slug
+  const fetchArg = source === 'workday' ? identifier || companySlug : companySlug;
+
   try {
-    rawJobs = await service.fetchJobs(companySlug);
+    rawJobs = await service.fetchJobs(companySlug, fetchArg);
   } catch (err) {
     logger.error('Job sync: fetch failed', { source, companySlug, error: err.message });
     errors.push(`fetch: ${err.message}`);
@@ -64,7 +71,9 @@ const runSync = async (source, companySlug) => {
     throw err; // re-throw so BullMQ records the failure and retries
   }
 
-  const normalizedJobs = service.normalizeJobs(rawJobs, companySlug);
+  const normalizedJobs = source === 'workday'
+    ? service.normalizeJobs(rawJobs, companySlug, fetchArg)
+    : service.normalizeJobs(rawJobs, companySlug);
   logger.info('Job sync: fetched jobs', { source, companySlug, count: normalizedJobs.length });
 
   // Load existing DB docs into a Map for O(1) lookup

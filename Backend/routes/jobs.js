@@ -19,7 +19,7 @@ router.get(
     query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
     query('source')
       .optional()
-      .isIn(['greenhouse', 'lever', 'ashby', 'company_api'])
+      .isIn(['greenhouse', 'lever', 'ashby', 'workday', 'company_api'])
       .withMessage('Invalid source'),
     query('employmentType')
       .optional()

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const jobSyncHistorySchema = new mongoose.Schema({
   source: {
     type: String,
-    enum: ['greenhouse', 'lever', 'ashby'],
+    enum: ['greenhouse', 'lever', 'ashby', 'workday'],
     required: true,
   },
   companySlug: { type: String, required: true },
