@@ -14,7 +14,7 @@ export const useEmails = () => {
       setIsLoading(true);
       setError(null);
       const data = await emailService.getAccounts();
-      setAccounts(data);
+      setAccounts(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load email accounts');
     } finally {

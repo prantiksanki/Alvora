@@ -27,7 +27,11 @@ export const connectSocket = (token) => {
     socket = null;
   }
 
-  socket = io('/', {
+  // In production, connect directly to the backend server.
+  // In development, '/' is proxied by Vite to localhost:3000.
+  const serverUrl = import.meta.env.VITE_API_URL || '/';
+
+  socket = io(serverUrl, {
     auth: { token },
     transports: ['websocket', 'polling'],
     reconnectionAttempts: 5,

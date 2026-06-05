@@ -15,7 +15,9 @@ let io = null;
 const initializeSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: process.env.FRONTEND_URL
+        ? process.env.FRONTEND_URL.split(',').map((u) => u.trim())
+        : ['http://localhost:5173'],
       credentials: true,
     },
     // Only use websocket transport to avoid polling overhead

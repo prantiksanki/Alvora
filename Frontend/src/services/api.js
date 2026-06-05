@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// In production, VITE_API_URL points to the deployed backend (e.g. https://your-api.onrender.com).
+// In development, Vite proxies /api to localhost:3000 so the relative path works fine.
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
