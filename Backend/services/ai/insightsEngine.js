@@ -155,8 +155,12 @@ Return ONLY valid JSON in this exact format, nothing else:
 
   const content = response.data?.choices?.[0]?.message?.content || '';
 
-  // Strip markdown code fences if present
-  const jsonStr = content.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+  // Strip Qwen3 thinking tags and markdown code fences
+  const jsonStr = content
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/gi, '')
+    .trim();
   const parsed = JSON.parse(jsonStr);
 
   if (!Array.isArray(parsed.insights) || parsed.insights.length === 0) {

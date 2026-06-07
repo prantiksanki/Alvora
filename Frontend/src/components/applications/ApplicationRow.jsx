@@ -24,7 +24,7 @@ const ApplicationRow = ({ application, onClick, onEdit, onDelete, isLoading }) =
   return (
     <tr
       onClick={() => onClick(application._id)}
-      className="border-b border-white/5 hover:bg-white/[0.03] transition-colors cursor-pointer group"
+      className="border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer group"
     >
       {/* Company */}
       <td className="px-4 py-3">

@@ -34,11 +34,14 @@ export function useInsights() {
   }, []);
 
   const refresh = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       await api.post('/insights/refresh');
-      setTimeout(fetchInsights, 2000);
+      // Small delay so backend can clear the cache, then regenerate
+      setTimeout(fetchInsights, 1500);
     } catch {
-      // Ignore
+      setIsLoading(false);
     }
   }, [fetchInsights]);
 

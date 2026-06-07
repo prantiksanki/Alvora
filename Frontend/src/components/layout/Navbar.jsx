@@ -46,7 +46,7 @@ const Navbar = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 border-b border-[#E1E0CC]/8 bg-[#16140e]/80 backdrop-blur-md shrink-0">
+    <header className="h-16 flex items-center justify-between px-6 border-b border-white/6 bg-black/90 backdrop-blur-md shrink-0">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}
@@ -81,7 +81,7 @@ const Navbar = ({ onMenuToggle }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-[#1e1b13]/95 border border-[#E1E0CC]/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+                className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-[#0f0f0f]/95 border border-[#E1E0CC]/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
               >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[#E1E0CC]/8">
                   <p className="text-sm font-semibold text-[#E1E0CC]">Notifications</p>
@@ -130,7 +130,7 @@ const Navbar = ({ onMenuToggle }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-12 w-48 backdrop-blur-xl bg-[#1e1b13]/95 border border-[#E1E0CC]/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+                className="absolute right-0 top-12 w-48 backdrop-blur-xl bg-[#0f0f0f]/95 border border-[#E1E0CC]/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
               >
                 <button
                   onClick={() => { navigate('/settings'); setDropdownOpen(false); }}

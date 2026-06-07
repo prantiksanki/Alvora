@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -38,8 +39,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('alvora_user');
   };
 
+  const updateUser = async (data) => {
+    const { data: updated } = await api.put('/auth/me', data);
+    const merged = { ...user, ...updated };
+    setUser(merged);
+    localStorage.setItem('alvora_user', JSON.stringify(merged));
+    return merged;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

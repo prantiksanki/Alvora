@@ -45,7 +45,7 @@ const ApplicationTable = ({
       <table className="w-full min-w-[700px]">
         {/* Sticky header */}
         <thead>
-          <tr className="border-b border-white/8 bg-[#0d0d13]">
+          <tr className="border-b border-white/8 bg-white/2.5">
             {COLUMNS.map((col) => (
               <th
                 key={col.key}

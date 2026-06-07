@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters'],
     select: false,
   },
+  bio: { type: String, default: '', trim: true, maxlength: 300 },
+  college: { type: String, default: '', trim: true },
+  location: { type: String, default: 'India', trim: true },
+  avatarColor: { type: String, default: '#2563eb' },
   createdAt: {
     type: Date,
     default: Date.now,

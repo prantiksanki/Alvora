@@ -21,6 +21,11 @@ const signup = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    bio: user.bio,
+    college: user.college,
+    location: user.location,
+    avatarColor: user.avatarColor,
+    createdAt: user.createdAt,
     token: generateToken(user._id),
   });
 });
@@ -46,8 +51,35 @@ const login = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    bio: user.bio,
+    college: user.college,
+    location: user.location,
+    avatarColor: user.avatarColor,
+    createdAt: user.createdAt,
     token: generateToken(user._id),
   });
 });
 
-module.exports = { signup, login };
+const updateMe = asyncHandler(async (req, res) => {
+  const { name, bio, college, location, avatarColor } = req.body;
+  const allowed = {};
+  if (name !== undefined) allowed.name = name.trim();
+  if (bio !== undefined) allowed.bio = bio.trim();
+  if (college !== undefined) allowed.college = college.trim();
+  if (location !== undefined) allowed.location = location.trim();
+  if (avatarColor !== undefined) allowed.avatarColor = avatarColor;
+
+  const user = await User.findByIdAndUpdate(req.user._id, allowed, { new: true });
+  res.status(200).json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    bio: user.bio,
+    college: user.college,
+    location: user.location,
+    avatarColor: user.avatarColor,
+    createdAt: user.createdAt,
+  });
+});
+
+module.exports = { signup, login, updateMe };

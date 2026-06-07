@@ -32,9 +32,9 @@ const PLATFORM_USERNAME_FIELDS = {
 
 const normalizeStats = (platform, data) => {
   switch (platform) {
-    case 'github': return { solvedCount: 0, rating: 0, contestCount: 0, streak: 0, extraData: data };
-    case 'codeforces': return { solvedCount: data.solvedCount, rating: data.rating, contestCount: data.contestCount, streak: 0, extraData: { maxRating: data.maxRating, rank: data.rank } };
-    case 'leetcode': return { solvedCount: data.solvedCount, rating: 0, contestCount: 0, streak: data.streak, extraData: { easySolved: data.easySolved, mediumSolved: data.mediumSolved, hardSolved: data.hardSolved, ranking: data.ranking } };
+    case 'github': return { solvedCount: 0, rating: 0, contestCount: 0, streak: 0, extraData: { ...data, activityCalendar: data.activityCalendar || {} } };
+    case 'codeforces': return { solvedCount: data.solvedCount, rating: data.rating, contestCount: data.contestCount, streak: 0, extraData: { maxRating: data.maxRating, rank: data.rank, activityCalendar: data.activityCalendar || {} } };
+    case 'leetcode': return { solvedCount: data.solvedCount, rating: 0, contestCount: 0, streak: data.streak, extraData: { easySolved: data.easySolved, mediumSolved: data.mediumSolved, hardSolved: data.hardSolved, ranking: data.ranking, submissionCalendar: data.submissionCalendar || {} } };
     case 'gfg': return { solvedCount: data.solvedCount, rating: data.score, contestCount: 0, streak: data.streak, extraData: {} };
     case 'codechef': return { solvedCount: data.solvedCount, rating: data.rating, contestCount: data.contestCount, streak: 0, extraData: { maxRating: data.maxRating } };
     case 'atcoder': return { solvedCount: 0, rating: data.rating, contestCount: data.contestCount, streak: 0, extraData: { maxRating: data.maxRating } };

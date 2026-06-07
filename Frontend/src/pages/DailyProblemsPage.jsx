@@ -1,150 +1,147 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  BookOpen, ExternalLink, RefreshCw, Tag, Target,
-  Percent, CheckCircle, Star, Zap, Code2, Trophy,
+  BookOpen, ExternalLink, RefreshCw, Tag,
+  Percent, CheckCircle2, Star, Zap, Code2, Trophy, CheckCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageTransition from '../components/animations/PageTransition';
-import Card from '../components/ui/Card';
 import { usePotd } from '../hooks/usePotd';
 import { potdService } from '../services/potdService';
 
-// ─── Platform config ─────────────────────────────────────────────────────────
 const PLATFORM_META = {
   leetcode: {
-    label: 'LeetCode',
-    icon: Code2,
-    color: 'text-yellow-400',
-    bg: 'bg-yellow-500/10',
-    border: 'border-yellow-500/20',
-    accent: 'from-yellow-500/20 to-orange-500/10',
-    dot: 'bg-yellow-400',
+    label: 'LeetCode',    icon: Code2,    color: '#f59e0b', rgb: '245,158,11',
   },
   gfg: {
-    label: 'GeeksForGeeks',
-    icon: BookOpen,
-    color: 'text-green-400',
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/20',
-    accent: 'from-green-500/20 to-emerald-500/10',
-    dot: 'bg-green-400',
+    label: 'GeeksForGeeks', icon: BookOpen, color: '#22c55e', rgb: '34,197,94',
   },
   codeforces: {
-    label: 'Codeforces',
-    icon: Trophy,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/20',
-    accent: 'from-blue-500/20 to-cyan-500/10',
-    dot: 'bg-blue-400',
+    label: 'Codeforces',  icon: Trophy,   color: '#3b82f6', rgb: '59,130,246',
   },
   codechef: {
-    label: 'CodeChef',
-    icon: Star,
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    border: 'border-orange-500/20',
-    accent: 'from-orange-500/20 to-amber-500/10',
-    dot: 'bg-orange-400',
+    label: 'CodeChef',    icon: Star,     color: '#f97316', rgb: '249,115,22',
   },
 };
 
-// ─── Difficulty badge ─────────────────────────────────────────────────────────
-const DIFF_STYLES = {
-  easy:   'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-  medium: 'bg-yellow-500/10  text-yellow-400  border border-yellow-500/20',
-  hard:   'bg-red-500/10     text-red-400     border border-red-500/20',
-};
+function DiffTag({ difficulty }) {
+  const map = {
+    easy:   { color: '#10b981', bg: 'rgba(16,185,129,0.1)',  border: 'rgba(16,185,129,0.25)' },
+    medium: { color: '#eab308', bg: 'rgba(234,179,8,0.1)',   border: 'rgba(234,179,8,0.25)'  },
+    hard:   { color: '#ef4444', bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.25)'  },
+  };
+  const s = map[difficulty?.toLowerCase()] || map.medium;
+  return (
+    <span
+      className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize"
+      style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
+    >
+      {difficulty}
+    </span>
+  );
+}
 
-const DiffBadge = ({ difficulty }) => (
-  <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${DIFF_STYLES[difficulty] || DIFF_STYLES.medium}`}>
-    {difficulty}
-  </span>
-);
-
-// ─── Single POTD card ─────────────────────────────────────────────────────────
 const PotdCard = ({ problem, index }) => {
-  const [solved, setSolved] = useState(() =>
-    localStorage.getItem(`alvora:potd:solved:${problem.platform}:${problem.date}`) === 'true'
+  const [solved, setSolved] = useState(
+    () => localStorage.getItem(`alvora:potd:solved:${problem.platform}:${problem.date}`) === 'true'
   );
 
   const meta = PLATFORM_META[problem.platform] || PLATFORM_META.leetcode;
   const Icon = meta.icon;
 
-  const handleSolve = (e) => {
-    e.preventDefault();
+  const handleSolve = () => {
     setSolved(true);
     localStorage.setItem(`alvora:potd:solved:${problem.platform}:${problem.date}`, 'true');
-    toast.success(`Marked as solved — great work! 🎉`, { duration: 2500 });
-  };
-
-  const handleOpen = () => {
-    window.open(problem.url, '_blank', 'noopener,noreferrer');
+    toast.success('Marked as solved — great work!', { duration: 2500 });
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.08 }}
-      className={`relative backdrop-blur-md bg-white/5 border rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/8 hover:border-white/20 group ${meta.border}`}
+      transition={{ delay: index * 0.08, duration: 0.3 }}
+      className="group relative overflow-hidden rounded-2xl"
+      style={{
+        background: solved
+          ? 'linear-gradient(135deg, #0d1a12 0%, #111111 100%)'
+          : 'linear-gradient(135deg, #141414 0%, #111111 100%)',
+        border: solved
+          ? '1px solid rgba(16,185,129,0.25)'
+          : `1px solid rgba(${meta.rgb},0.14)`,
+        boxShadow: '0 4px 32px rgba(0,0,0,0.4)',
+      }}
     >
-      {/* Gradient top bar */}
-      <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${meta.accent}`} />
+      {/* Left accent */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-0.75 rounded-l-2xl transition-all duration-300"
+        style={{ background: solved ? '#10b981' : meta.color }}
+      />
 
-      {/* Solved overlay */}
-      <AnimatePresence>
-        {solved && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute top-3 right-3 z-10"
-          >
-            <div className="flex items-center gap-1 px-2 py-1 bg-emerald-500/15 border border-emerald-500/25 rounded-full">
-              <CheckCircle size={11} className="text-emerald-400" />
-              <span className="text-[10px] font-semibold text-emerald-400">Solved</span>
+      {/* Hover glow */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{ background: `linear-gradient(90deg, rgba(${meta.rgb},0.05) 0%, transparent 100%)` }}
+      />
+
+      <div className="px-6 py-5 pl-8">
+
+        {/* Platform row */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: `rgba(${meta.rgb},0.1)`, border: `1px solid rgba(${meta.rgb},0.2)` }}
+            >
+              <Icon size={16} style={{ color: meta.color }} />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: meta.color }}>{meta.label}</p>
+              <p className="text-[10px] text-gray-600">Problem of the Day</p>
+            </div>
+          </div>
 
-      <div className="p-5">
-        {/* Platform header */}
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className={`p-2 rounded-xl ${meta.bg} shrink-0`}>
-            <Icon size={16} className={meta.color} />
-          </div>
-          <div>
-            <p className={`text-xs font-semibold ${meta.color}`}>{meta.label}</p>
-            <p className="text-[10px] text-gray-600">Problem of the Day</p>
-          </div>
-          <div className={`ml-auto flex items-center gap-1.5 px-2 py-1 rounded-full ${meta.bg} border ${meta.border}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${meta.dot} animate-pulse`} />
-            <span className={`text-[10px] font-medium ${meta.color}`}>
-              {problem.date}
-            </span>
-          </div>
+          <AnimatePresence>
+            {solved ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25"
+              >
+                <CheckCircle2 size={11} className="text-emerald-400" />
+                <span className="text-[10px] font-semibold text-emerald-400">Solved</span>
+              </motion.div>
+            ) : (
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+                style={{ background: `rgba(${meta.rgb},0.08)`, border: `1px solid rgba(${meta.rgb},0.2)` }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: meta.color }} />
+                <span className="text-[10px] font-medium" style={{ color: meta.color }}>{problem.date}</span>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Problem title */}
-        <h3 className="text-base font-bold text-white mb-3 leading-snug group-hover:text-violet-200 transition-colors line-clamp-2">
+        {/* Title */}
+        <h3 className="text-[15px] font-bold text-white leading-snug mb-3 line-clamp-2 group-hover:text-gray-100 transition-colors">
           {problem.title}
         </h3>
 
-        {/* Meta row */}
+        {/* Meta badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <DiffBadge difficulty={problem.difficulty} />
+          <DiffTag difficulty={problem.difficulty} />
 
           {problem.rating && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-blue-400"
+              style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
               <Zap size={9} />
               {problem.rating} rating
             </span>
           )}
 
           {problem.accuracy != null && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-gray-400">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-gray-400"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <Percent size={9} />
               {problem.accuracy}% acceptance
             </span>
@@ -153,30 +150,42 @@ const PotdCard = ({ problem, index }) => {
 
         {/* Tags */}
         {problem.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="flex flex-wrap gap-1.5 mb-5">
             {problem.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 border border-white/8 text-[10px] text-gray-500"
+                className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] text-gray-500"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
               >
                 <Tag size={8} />
                 {tag}
               </span>
             ))}
             {problem.tags.length > 4 && (
-              <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/8 text-[10px] text-gray-600">
-                +{problem.tags.length - 4} more
+              <span className="px-2 py-0.5 rounded-md text-[10px] text-gray-600"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                +{problem.tags.length - 4}
               </span>
             )}
           </div>
         )}
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2 pt-1">
+        {/* Divider */}
+        <div className="h-px bg-white/5 mb-4" />
+
+        {/* Actions */}
+        <div className="flex items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={handleOpen}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${meta.bg} ${meta.color} border ${meta.border} hover:brightness-110`}
+            onClick={() => window.open(problem.url, '_blank', 'noopener,noreferrer')}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200"
+            style={{
+              background: `rgba(${meta.rgb},0.1)`,
+              border: `1px solid rgba(${meta.rgb},0.2)`,
+              color: meta.color,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = `rgba(${meta.rgb},0.18)`}
+            onMouseLeave={e => e.currentTarget.style.background = `rgba(${meta.rgb},0.1)`}
           >
             <ExternalLink size={12} />
             Solve Now
@@ -186,11 +195,13 @@ const PotdCard = ({ problem, index }) => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleSolve}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition-all duration-200"
-              title="Mark as solved"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-emerald-400 transition-all duration-200"
+              style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(16,185,129,0.16)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(16,185,129,0.08)'}
             >
-              <Target size={12} />
-              Mark Solved
+              <CheckCheck size={13} />
+              Done
             </motion.button>
           )}
         </div>
@@ -199,29 +210,29 @@ const PotdCard = ({ problem, index }) => {
   );
 };
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-const PotdSkeleton = () => (
-  <div className="animate-pulse backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-    <div className="flex items-center gap-2.5">
-      <div className="w-9 h-9 rounded-xl bg-white/10" />
+const Skeleton = () => (
+  <div className="animate-pulse rounded-2xl p-6 space-y-4"
+    style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className="flex items-center gap-3">
+      <div className="w-9 h-9 rounded-xl bg-white/8" />
       <div className="space-y-1.5">
-        <div className="h-3 w-24 bg-white/10 rounded" />
-        <div className="h-2 w-16 bg-white/8 rounded" />
+        <div className="h-3 w-20 bg-white/8 rounded" />
+        <div className="h-2 w-14 bg-white/5 rounded" />
       </div>
     </div>
     <div className="space-y-2">
-      <div className="h-4 w-4/5 bg-white/10 rounded" />
-      <div className="h-4 w-2/3 bg-white/8 rounded" />
+      <div className="h-4 w-5/6 bg-white/8 rounded" />
+      <div className="h-4 w-3/5 bg-white/5 rounded" />
     </div>
     <div className="flex gap-2">
       <div className="h-5 w-14 bg-white/8 rounded-full" />
-      <div className="h-5 w-20 bg-white/8 rounded-full" />
+      <div className="h-5 w-20 bg-white/5 rounded-full" />
     </div>
+    <div className="h-px bg-white/5" />
     <div className="h-9 bg-white/8 rounded-xl" />
   </div>
 );
 
-// ─── Main page ────────────────────────────────────────────────────────────────
 export default function DailyProblemsPage() {
   const { problems, isLoading, error, lastRefreshed, refetch } = usePotd();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -242,100 +253,121 @@ export default function DailyProblemsPage() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 
+  const solvedCount = problems.filter((p) =>
+    localStorage.getItem(`alvora:potd:solved:${p.platform}:${p.date}`) === 'true'
+  ).length;
+
   return (
     <PageTransition>
-      <div className="space-y-6">
+      <div className="-m-4 md:-m-6" style={{ background: '#0a0a0a', minHeight: 'calc(100vh - 64px)' }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <BookOpen size={22} className="text-violet-400" />
-              Daily Problems
-            </h2>
-            <p className="text-gray-400 text-sm mt-1">{today}</p>
+        <div className="flex items-center justify-between px-8 py-6 border-b border-white/6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+              <BookOpen size={16} className="text-violet-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Daily Problems</h2>
+              <p className="text-xs text-gray-500 mt-0.5">{today}</p>
+            </div>
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/8 transition-all text-xs font-medium disabled:opacity-50"
-          >
-            <RefreshCw size={13} className={isRefreshing ? 'animate-spin text-violet-400' : ''} />
-            <span className="hidden sm:inline">{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
-          </motion.button>
-        </div>
-
-        {/* Info banner */}
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-500/8 border border-violet-500/15 text-sm text-violet-300">
-          <Zap size={15} className="shrink-0 text-violet-400" />
-          <span>
-            Solve today&apos;s problems across platforms to maintain your streaks.
-            {lastRefreshed && (
-              <span className="text-violet-500 ml-1.5 text-xs">
-                Updated {lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
+          <div className="flex items-center gap-3">
+            {/* Solved pill */}
+            {!isLoading && problems.length > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/8 border border-emerald-500/20">
+                <CheckCircle2 size={12} className="text-emerald-400" />
+                <span className="text-xs font-semibold text-emerald-400">
+                  {solvedCount}/{problems.length} solved
+                </span>
+              </div>
             )}
-          </span>
-        </div>
 
-        {/* Error state */}
-        {error && !isLoading && (
-          <Card className="text-center py-10">
-            <BookOpen size={28} className="text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium">Couldn&apos;t load daily problems</p>
-            <p className="text-gray-600 text-sm mt-1">
-              Make sure the backend server is running and try refreshing.
-            </p>
             <motion.button
               whileTap={{ scale: 0.96 }}
-              onClick={refetch}
-              className="mt-4 px-4 py-2 rounded-xl bg-violet-500/15 border border-violet-500/25 text-violet-400 text-sm font-medium hover:bg-violet-500/25 transition-all"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/8 text-xs text-gray-400 hover:text-white hover:border-white/20 transition-all disabled:opacity-50"
             >
-              Try Again
+              <RefreshCw size={12} className={isRefreshing ? 'animate-spin text-violet-400' : ''} />
+              {isRefreshing ? 'Refreshing…' : 'Refresh'}
             </motion.button>
-          </Card>
-        )}
-
-        {/* Problem grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <PotdSkeleton key={i} />)
-            : problems.map((p, i) => (
-                <PotdCard key={`${p.platform}-${p.date}`} problem={p} index={i} />
-              ))}
+          </div>
         </div>
 
-        {/* Empty state */}
-        {!isLoading && !error && problems.length === 0 && (
-          <Card className="text-center py-14">
-            <BookOpen size={32} className="text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium">No problems loaded yet</p>
-            <p className="text-gray-600 text-sm mt-1">Click Refresh to fetch today&apos;s problems.</p>
-          </Card>
-        )}
+        {/* Streak banner */}
+        <div className="mx-8 mt-5 flex items-center gap-3 px-4 py-3 rounded-xl"
+          style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.12)' }}>
+          <Zap size={14} className="text-violet-400 shrink-0" />
+          <span className="text-sm text-violet-300">
+            Solve today&apos;s problems across platforms to maintain your streaks.
+          </span>
+          {lastRefreshed && (
+            <span className="ml-auto text-[10px] text-violet-600 shrink-0">
+              Updated {lastRefreshed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+        </div>
 
-        {/* Solved count strip */}
+        {/* Problem grid */}
+        <div className="px-8 py-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} />)
+            : error && problems.length === 0
+            ? (
+              <div className="col-span-2 flex flex-col items-center justify-center py-24 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-center mb-4">
+                  <BookOpen size={22} className="text-gray-600" />
+                </div>
+                <p className="text-sm text-gray-400 font-medium mb-1">Couldn&apos;t load daily problems</p>
+                <p className="text-xs text-gray-600 mb-4">Make sure the backend is running and try again.</p>
+                <button
+                  onClick={refetch}
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-violet-400 transition-all"
+                  style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)' }}
+                >
+                  Try Again
+                </button>
+              </div>
+            )
+            : problems.length === 0
+            ? (
+              <div className="col-span-2 flex flex-col items-center justify-center py-24 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-center mb-4">
+                  <BookOpen size={22} className="text-gray-600" />
+                </div>
+                <p className="text-sm text-gray-500">No problems loaded yet — click Refresh.</p>
+              </div>
+            )
+            : problems.map((p, i) => (
+              <PotdCard key={`${p.platform}-${p.date}`} problem={p} index={i} />
+            ))
+          }
+        </div>
+
+        {/* Bottom platform status strip */}
         {!isLoading && problems.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="flex items-center justify-center gap-6 py-3 px-5 rounded-2xl bg-white/3 border border-white/8"
+            className="mx-8 mb-6 flex items-center justify-center gap-6 py-3 px-5 rounded-2xl"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
           >
             {problems.map((p) => {
               const meta = PLATFORM_META[p.platform];
-              const isSolved = localStorage.getItem(
-                `alvora:potd:solved:${p.platform}:${p.date}`
-              ) === 'true';
+              const isSolved = localStorage.getItem(`alvora:potd:solved:${p.platform}:${p.date}`) === 'true';
               return (
                 <div key={p.platform} className="flex items-center gap-1.5">
-                  <div className={`w-2 h-2 rounded-full ${isSolved ? 'bg-emerald-400' : meta?.dot || 'bg-gray-600'}`} />
-                  <span className={`text-xs font-medium ${isSolved ? 'text-emerald-400' : 'text-gray-500'}`}>
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ background: isSolved ? '#10b981' : meta?.color || '#6b7280' }}
+                  />
+                  <span className="text-xs font-medium" style={{ color: isSolved ? '#10b981' : '#6b7280' }}>
                     {meta?.label || p.platform}
                   </span>
-                  {isSolved && <CheckCircle size={11} className="text-emerald-400" />}
+                  {isSolved && <CheckCircle2 size={11} className="text-emerald-400" />}
                 </div>
               );
             })}

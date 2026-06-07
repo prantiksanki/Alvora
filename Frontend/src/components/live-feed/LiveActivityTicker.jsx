@@ -16,8 +16,7 @@ const LiveActivityTicker = ({ jobs = [] }) => {
   const items = jobs.slice(0, 10);
 
   return (
-    <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/3 to-transparent pointer-events-none" />
+    <div className="rounded-2xl p-4 relative overflow-hidden" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)' }}>
 
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">

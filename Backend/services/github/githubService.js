@@ -36,13 +36,54 @@ const fetchGithubStats = async (username) => {
 
   const stars = repos.reduce((sum, r) => sum + r.stargazers_count, 0);
 
+  // Fetch contribution calendar via GitHub GraphQL API (requires GITHUB_TOKEN)
+  let activityCalendar = {};
+  if (process.env.GITHUB_TOKEN) {
+    try {
+      const gqlQuery = `
+        query($username: String!) {
+          user(login: $username) {
+            contributionsCollection {
+              contributionCalendar {
+                weeks {
+                  contributionDays {
+                    date
+                    contributionCount
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      const gqlRes = await axios.post(
+        'https://api.github.com/graphql',
+        { query: gqlQuery, variables: { username } },
+        {
+          headers: {
+            Authorization: `bearer ${process.env.GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const weeks = gqlRes.data?.data?.user?.contributionsCollection?.contributionCalendar?.weeks || [];
+      for (const week of weeks) {
+        for (const day of week.contributionDays) {
+          if (day.contributionCount > 0) {
+            activityCalendar[day.date] = day.contributionCount;
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
   return {
     followers: user.followers,
     publicRepos: user.public_repos,
     stars,
     topLanguages,
-    // Contribution data requires GitHub GraphQL API or scraping — placeholder for now
-    contributions: 0,
+    contributions: Object.values(activityCalendar).reduce((s, c) => s + c, 0),
+    activityCalendar,
   };
 };
 

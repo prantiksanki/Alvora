@@ -17,6 +17,7 @@ const query = `
       userCalendar {
         streak
         totalActiveDays
+        submissionCalendar
       }
       profile {
         ranking
@@ -48,6 +49,13 @@ const fetchLeetcodeStats = async (username) => {
   const mediumEntry = acStats.find((s) => s.difficulty === 'Medium');
   const hardEntry = acStats.find((s) => s.difficulty === 'Hard');
 
+  // submissionCalendar is a JSON string: '{"unixTs": count, ...}'
+  let submissionCalendar = {};
+  try {
+    const raw = matchedUser.userCalendar?.submissionCalendar;
+    if (raw) submissionCalendar = JSON.parse(raw);
+  } catch (_) {}
+
   return {
     solvedCount: allEntry?.count || 0,
     easySolved: easyEntry?.count || 0,
@@ -56,6 +64,7 @@ const fetchLeetcodeStats = async (username) => {
     ranking: matchedUser.profile?.ranking || 0,
     streak: matchedUser.userCalendar?.streak || 0,
     totalActiveDays: matchedUser.userCalendar?.totalActiveDays || 0,
+    submissionCalendar,
   };
 };
 

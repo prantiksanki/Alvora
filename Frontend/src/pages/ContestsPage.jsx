@@ -1,89 +1,180 @@
 import { useState, useEffect } from 'react';
-import { Swords, ExternalLink, Clock, Trophy, Code2 } from 'lucide-react';
+import { Swords, ExternalLink, Clock, Trophy, Code2, CalendarDays, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import PageTransition from '../components/animations/PageTransition';
-import FadeIn from '../components/animations/FadeIn';
-import Card from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
 
 const useCountdown = (targetDate) => {
-  const [timeLeft, setTimeLeft] = useState('');
-  const [isPast, setIsPast] = useState(false);
+  const calc = () => {
+    const diff = new Date(targetDate) - Date.now();
+    if (diff <= 0) return { timeLeft: { d: 0, h: 0, m: 0 }, isPast: true };
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return { timeLeft: { d, h, m }, isPast: false };
+  };
+
+  const [state, setState] = useState(calc);
 
   useEffect(() => {
-    const calc = () => {
-      const diff = new Date(targetDate) - Date.now();
-      if (diff <= 0) { setTimeLeft('Started'); setIsPast(true); return; }
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff % 86400000) / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      setTimeLeft(d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m` : `${m}m`);
-    };
-    calc();
-    const t = setInterval(calc, 30000);
+    const t = setInterval(() => setState(calc()), 30000);
     return () => clearInterval(t);
   }, [targetDate]);
 
-  return { timeLeft, isPast };
+  return state;
 };
+
+const PLATFORM = {
+  codeforces: {
+    label: 'Codeforces',
+    icon: Trophy,
+    color: '#3b82f6',
+    rgb: '59,130,246',
+    badgeCls: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  },
+  leetcode: {
+    label: 'LeetCode',
+    icon: Code2,
+    color: '#f59e0b',
+    rgb: '245,158,11',
+    badgeCls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+  },
+};
+
+function CountdownBlock({ value, label }) {
+  return (
+    <div className="flex flex-col items-center">
+      <span className="text-xl font-black text-white tabular-nums leading-none">
+        {String(value).padStart(2, '0')}
+      </span>
+      <span className="text-[9px] text-gray-600 uppercase tracking-widest mt-0.5">{label}</span>
+    </div>
+  );
+}
+
+function Divider() {
+  return <span className="text-gray-700 font-bold text-lg leading-none mb-2">:</span>;
+}
 
 const ContestCard = ({ contest, index }) => {
   const { timeLeft, isPast } = useCountdown(contest.startTime);
   const isRunning = contest.status === 'running';
-  const isPlatformCF = contest.platform === 'codeforces';
-  const platformColor = isPlatformCF ? 'codeforces' : 'leetcode';
-  const PlatformIcon = isPlatformCF ? Trophy : Code2;
+  const meta = PLATFORM[contest.platform] || PLATFORM.codeforces;
+  const Icon = meta.icon;
+  const durationHr = contest.duration > 0 ? Math.round(contest.duration / 3600) : null;
+
+  const startDate = new Date(contest.startTime);
+  const dateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const timeStr = startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <FadeIn.Item>
-      <motion.div whileHover={{ y: -2 }}>
-        <Card className={`${isRunning ? 'border-emerald-500/30' : ''}`}>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className={`p-2.5 rounded-xl ${isPlatformCF ? 'bg-blue-500/15' : 'bg-yellow-500/15'} shrink-0`}>
-                <PlatformIcon size={16} className={isPlatformCF ? 'text-blue-400' : 'text-yellow-400'} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-sm leading-tight mb-1">{contest.name}</p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant={platformColor}>{contest.platform}</Badge>
-                  {isRunning && <Badge variant="active">Live Now</Badge>}
-                  {contest.duration > 0 && (
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Clock size={10} />
-                      {Math.round(contest.duration / 3600)}h
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.07, duration: 0.3 }}
+      className="group relative overflow-hidden rounded-2xl border transition-all duration-200"
+      style={{
+        background: `linear-gradient(135deg, #141414 0%, #111111 100%)`,
+        borderColor: isRunning ? 'rgba(16,185,129,0.35)' : `rgba(${meta.rgb},0.12)`,
+        boxShadow: isRunning
+          ? '0 0 0 1px rgba(16,185,129,0.1), 0 4px 24px rgba(0,0,0,0.4)'
+          : `0 4px 24px rgba(0,0,0,0.35)`,
+      }}
+    >
+      {/* Left accent bar */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-0.75 rounded-l-2xl"
+        style={{ background: isRunning ? '#10b981' : meta.color }}
+      />
 
-            <div className="text-right shrink-0">
-              <div className={`text-sm font-mono font-bold ${isRunning ? 'text-emerald-400' : 'text-violet-400'}`}>
-                {timeLeft}
-              </div>
-              <p className="text-[10px] text-gray-500 mt-0.5">
-                {new Date(contest.startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-              </p>
-              {contest.url && (
-                <a href={contest.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-gray-500 hover:text-white mt-1 transition-colors">
-                  Open <ExternalLink size={9} />
-                </a>
-              )}
-            </div>
+      {/* Subtle glow behind icon */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-32 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: `linear-gradient(90deg, rgba(${meta.rgb},0.06) 0%, transparent 100%)` }}
+      />
+
+      <div className="flex items-center gap-5 px-6 py-5 pl-8">
+        {/* Platform icon */}
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+          style={{ background: `rgba(${meta.rgb},0.1)`, border: `1px solid rgba(${meta.rgb},0.2)` }}
+        >
+          <Icon size={18} style={{ color: meta.color }} />
+        </div>
+
+        {/* Contest info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border"
+              style={{ color: meta.color, background: `rgba(${meta.rgb},0.08)`, borderColor: `rgba(${meta.rgb},0.2)` }}
+            >
+              {meta.label}
+            </span>
+            {isRunning && (
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live
+              </span>
+            )}
           </div>
-        </Card>
-      </motion.div>
-    </FadeIn.Item>
+          <p className="text-sm font-semibold text-white leading-snug truncate pr-4">{contest.name}</p>
+          <div className="flex items-center gap-3 mt-1.5">
+            <span className="flex items-center gap-1 text-[11px] text-gray-500">
+              <CalendarDays size={10} />
+              {dateStr}, {timeStr}
+            </span>
+            {durationHr && (
+              <span className="flex items-center gap-1 text-[11px] text-gray-500">
+                <Clock size={10} />
+                {durationHr}h
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Countdown + link */}
+        <div className="flex flex-col items-end gap-3 shrink-0">
+          {isPast || isRunning ? (
+            <div className="flex items-center gap-1.5 text-sm font-bold text-emerald-400">
+              <Zap size={14} />
+              {isRunning ? 'Running' : 'Started'}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              {timeLeft.d > 0 && (
+                <>
+                  <CountdownBlock value={timeLeft.d} label="day" />
+                  <Divider />
+                </>
+              )}
+              <CountdownBlock value={timeLeft.h} label="hr" />
+              <Divider />
+              <CountdownBlock value={timeLeft.m} label="min" />
+            </div>
+          )}
+
+          {contest.url && (
+            <a
+              href={contest.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-[11px] text-gray-600 hover:text-white transition-colors"
+            >
+              Open <ExternalLink size={10} />
+            </a>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
 const MOCK_CONTESTS = [
-  { contestId: '1', platform: 'codeforces', name: 'Codeforces Round 1000 (Div. 2)', startTime: new Date(Date.now() + 2 * 86400000), duration: 7200, url: 'https://codeforces.com', status: 'upcoming' },
-  { contestId: '2', platform: 'codeforces', name: 'Codeforces Round 999 (Div. 1)', startTime: new Date(Date.now() + 5 * 86400000), duration: 10800, url: 'https://codeforces.com', status: 'upcoming' },
-  { contestId: '3', platform: 'leetcode', name: 'LeetCode Weekly Contest 400', startTime: new Date(Date.now() + 3 * 86400000), duration: 5400, url: 'https://leetcode.com/contest', status: 'upcoming' },
-  { contestId: '4', platform: 'leetcode', name: 'LeetCode Biweekly Contest 130', startTime: new Date(Date.now() + 10 * 86400000), duration: 5400, url: 'https://leetcode.com/contest', status: 'upcoming' },
+  { contestId: '1', platform: 'codeforces', name: 'Educational Codeforces Round 191 (Rated for Div. 2)', startTime: new Date(Date.now() + 1.5 * 86400000), duration: 7200, url: 'https://codeforces.com', status: 'upcoming' },
+  { contestId: '2', platform: 'leetcode',   name: 'Weekly Contest 506', startTime: new Date(Date.now() + 6 * 86400000), duration: 5400, url: 'https://leetcode.com/contest', status: 'upcoming' },
+  { contestId: '3', platform: 'codeforces', name: 'Codeforces Round 1000 (Div. 1 + Div. 2)', startTime: new Date(Date.now() + 9 * 86400000), duration: 10800, url: 'https://codeforces.com', status: 'upcoming' },
+  { contestId: '4', platform: 'leetcode',   name: 'Biweekly Contest 160', startTime: new Date(Date.now() + 13 * 86400000), duration: 5400, url: 'https://leetcode.com/contest', status: 'upcoming' },
 ];
 
 export default function ContestsPage() {
@@ -102,52 +193,57 @@ export default function ContestsPage() {
 
   return (
     <PageTransition>
-      <div className="space-y-6">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Swords size={24} className="text-cyan-400" />
-              Contests
-            </h2>
-            <p className="text-gray-400 text-sm mt-1">Upcoming competitive programming contests</p>
+      <div className="-m-4 md:-m-6" style={{ background: '#0a0a0a', minHeight: 'calc(100vh - 64px)' }}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 border-b border-white/6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+              <Swords size={16} className="text-violet-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Contests</h2>
+              <p className="text-xs text-gray-500 mt-0.5">Upcoming competitive programming contests</p>
+            </div>
           </div>
 
           {/* Filter tabs */}
-          <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+          <div className="flex gap-1 bg-white/4 border border-white/8 rounded-xl p-1">
             {['all', 'codeforces', 'leetcode'].map((p) => (
               <button
                 key={p}
                 onClick={() => setFilter(p)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 capitalize ${
                   filter === p
-                    ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                    : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
                 }`}
               >
-                {p}
+                {p === 'all' ? 'All' : p === 'codeforces' ? 'Codeforces' : 'LeetCode'}
               </button>
             ))}
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-20 animate-pulse bg-white/5 rounded-2xl" />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <Card className="text-center py-12">
-            <Swords size={32} className="text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-400">No upcoming {filter !== 'all' ? filter : ''} contests found</p>
-          </Card>
-        ) : (
-          <FadeIn stagger={0.06} className="space-y-3">
-            {filtered.map((contest, i) => (
+        {/* Contest list */}
+        <div className="px-8 py-6 space-y-3">
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-24 animate-pulse bg-white/4 rounded-2xl" />
+            ))
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/4 border border-white/8 flex items-center justify-center mb-4">
+                <Swords size={22} className="text-gray-600" />
+              </div>
+              <p className="text-sm text-gray-500">No upcoming {filter !== 'all' ? filter : ''} contests found</p>
+            </div>
+          ) : (
+            filtered.map((contest, i) => (
               <ContestCard key={`${contest.platform}-${contest.contestId}`} contest={contest} index={i} />
-            ))}
-          </FadeIn>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </PageTransition>
   );

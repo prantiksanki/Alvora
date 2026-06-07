@@ -69,26 +69,25 @@ const JobFeed = ({
           animate={{ opacity: 1 }}
           className="flex items-center justify-between mt-6 pt-4 border-t border-white/8"
         >
-          <p className="text-xs text-gray-500">
-            {pagination.total} job{pagination.total !== 1 ? 's' : ''} found
+          <p className="text-xs text-gray-600">
+            {pagination.total} jobs · page {pagination.page} of {pagination.pages}
           </p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <ChevronLeft size={14} />
+              <ChevronLeft size={12} /> Prev
             </button>
-            <span className="text-xs text-gray-400 px-2">
-              {pagination.page} / {pagination.pages}
-            </span>
             <button
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.pages}
-              className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <ChevronRight size={14} />
+              Next <ChevronRight size={12} />
             </button>
           </div>
         </motion.div>

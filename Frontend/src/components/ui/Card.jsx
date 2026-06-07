@@ -19,7 +19,7 @@ function TiltCard({ children, className = '', padding = 'p-6', gradient = false,
   const highlightBg = useTransform(
     [smoothX, smoothY],
     ([x, y]) =>
-      `radial-gradient(ellipse 60% 40% at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(201,185,154,0.13) 0%, transparent 60%)`
+      `radial-gradient(ellipse 60% 40% at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.04) 0%, transparent 60%)`
   );
 
   const handleMouseMove = useCallback((e) => {
@@ -47,19 +47,17 @@ function TiltCard({ children, className = '', padding = 'p-6', gradient = false,
         y: translateY,
         transformStyle: 'preserve-3d',
         perspective: 800,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,185,154,0.08)',
-        background: 'rgba(225,224,204,0.05)',
-        border: '1px solid rgba(201,185,154,0.15)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)',
+        background: '#111111',
+        border: '1px solid rgba(255,255,255,0.06)',
         ...styleProp,
       }}
       whileHover={{
         y: -10,
-        boxShadow:
-          '0 20px 60px rgba(0,0,0,0.55), 0 0 40px rgba(201,185,154,0.18), 0 0 80px rgba(201,185,154,0.08), 0 0 0 1px rgba(201,185,154,0.28)',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.12)',
         transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
       }}
       className={[
-        'backdrop-blur-xl',
         'rounded-2xl relative overflow-hidden',
         'cursor-pointer',
         'transition-[background-color] duration-300',
@@ -68,25 +66,10 @@ function TiltCard({ children, className = '', padding = 'p-6', gradient = false,
       ].filter(Boolean).join(' ')}
       {...props}
     >
-      {/* Static edge lighting — top-left warm light source */}
-      <div
-        className="absolute inset-0 pointer-events-none rounded-2xl"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(201,185,154,0.10) 0%, rgba(201,185,154,0.03) 40%, transparent 60%)',
-        }}
-      />
-
-      {/* Dynamic highlight following cursor */}
       <motion.div
         className="absolute inset-0 pointer-events-none rounded-2xl"
         style={{ background: highlightBg }}
       />
-
-      {gradient && (
-        <div className="absolute inset-0 bg-linear-to-br from-[#c9b99a]/5 to-transparent pointer-events-none rounded-2xl" />
-      )}
-
       <div className="relative z-10">{children}</div>
     </motion.div>
   );
@@ -120,28 +103,18 @@ const Card = ({
   return (
     <div
       className={[
-        'backdrop-blur-xl',
         'rounded-2xl relative overflow-hidden',
         padding,
         className,
       ].filter(Boolean).join(' ')}
       style={{
-        background: 'rgba(225,224,204,0.05)',
-        border: '1px solid rgba(201,185,154,0.15)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,185,154,0.06)',
+        background: '#111111',
+        border: '1px solid rgba(255,255,255,0.06)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
         ...style,
       }}
       {...props}
     >
-      <div
-        className="absolute inset-0 pointer-events-none rounded-2xl"
-        style={{
-          background: 'linear-gradient(135deg, rgba(201,185,154,0.08) 0%, transparent 50%)',
-        }}
-      />
-      {gradient && (
-        <div className="absolute inset-0 bg-linear-to-br from-[#c9b99a]/5 to-transparent pointer-events-none rounded-2xl" />
-      )}
       <div className="relative z-10">{children}</div>
     </div>
   );

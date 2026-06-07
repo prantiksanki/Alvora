@@ -1,23 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, SlidersHorizontal, Briefcase, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApplications } from '../../hooks/useApplications';
 import ApplicationTable from '../../components/applications/ApplicationTable';
 import ApplicationModal from '../../components/applications/ApplicationModal';
 import ApplicationDrawer from '../../components/applications/ApplicationDrawer';
 import PageTransition from '../../components/animations/PageTransition';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
 
 const STATUS_FILTERS = [
-  { value: '',                    label: 'All'       },
-  { value: 'Applied',             label: 'Applied'   },
-  { value: 'OA_Received',         label: 'OA'        },
-  { value: 'Interview_Scheduled', label: 'Interview' },
-  { value: 'Next_Round',          label: 'Next Round'},
-  { value: 'Offer',               label: 'Offer'     },
-  { value: 'Rejected',            label: 'Rejected'  },
-  { value: 'Ghosted',             label: 'Ghosted'   },
+  { value: '',                    label: 'All'        },
+  { value: 'Applied',             label: 'Applied'    },
+  { value: 'OA_Received',         label: 'OA'         },
+  { value: 'Interview_Scheduled', label: 'Interview'  },
+  { value: 'Next_Round',          label: 'Next Round' },
+  { value: 'Offer',               label: 'Offer'      },
+  { value: 'Rejected',            label: 'Rejected'   },
+  { value: 'Ghosted',             label: 'Ghosted'    },
 ];
 
 const SORT_OPTIONS = [
@@ -27,35 +25,41 @@ const SORT_OPTIONS = [
   { value: 'status',      label: 'Status'        },
 ];
 
+const STATUS_COLORS = {
+  '':                    { color: '#9ca3af', bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.2)' },
+  Applied:               { color: '#60a5fa', bg: 'rgba(96,165,250,0.1)',  border: 'rgba(96,165,250,0.2)'  },
+  OA_Received:           { color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',  border: 'rgba(251,191,36,0.2)'  },
+  Interview_Scheduled:   { color: '#a78bfa', bg: 'rgba(167,139,250,0.1)',border: 'rgba(167,139,250,0.2)' },
+  Next_Round:            { color: '#22d3ee', bg: 'rgba(34,211,238,0.1)',  border: 'rgba(34,211,238,0.2)'  },
+  Offer:                 { color: '#34d399', bg: 'rgba(52,211,153,0.1)',  border: 'rgba(52,211,153,0.2)'  },
+  Rejected:              { color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.2)' },
+  Ghosted:              { color: '#9ca3af', bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.2)' },
+};
+
 export default function ApplicationsPage() {
   const {
     applications, pagination, filters, isLoading, error,
     setFilter, setPage, createApplication, updateApplication, deleteApplication,
   } = useApplications();
 
-  // Local search input for debouncing
   const [searchInput, setSearchInput] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [editingApp, setEditingApp] = useState(null);
+  const [showModal, setShowModal]     = useState(false);
+  const [editingApp, setEditingApp]   = useState(null);
   const [drawerAppId, setDrawerAppId] = useState(null);
-  const [sortOpen, setSortOpen] = useState(false);
+  const [sortOpen, setSortOpen]       = useState(false);
 
-  // Debounce search
   useEffect(() => {
     const t = setTimeout(() => setFilter('search', searchInput), 300);
     return () => clearTimeout(t);
   }, [searchInput, setFilter]);
 
-  const handleOpenAdd = () => { setEditingApp(null); setShowModal(true); };
+  const handleOpenAdd  = () => { setEditingApp(null); setShowModal(true); };
   const handleOpenEdit = (app) => { setEditingApp(app); setShowModal(true); };
   const handleCloseModal = () => { setShowModal(false); setEditingApp(null); };
 
   const handleSave = async (data) => {
-    if (editingApp) {
-      await updateApplication(editingApp._id, data);
-    } else {
-      await createApplication(data);
-    }
+    if (editingApp) await updateApplication(editingApp._id, data);
+    else await createApplication(data);
   };
 
   const handleDelete = async (id) => {
@@ -64,85 +68,114 @@ export default function ApplicationsPage() {
   };
 
   const currentSortLabel = SORT_OPTIONS.find((o) => o.value === filters.sortBy)?.label || 'Sort';
+  const activeStatus = STATUS_COLORS[filters.status] || STATUS_COLORS[''];
 
   return (
     <PageTransition>
-      <div className="space-y-4 pb-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="-m-4 md:-m-6 flex flex-col" style={{ background: '#0a0a0a', minHeight: 'calc(100vh - 64px)' }}>
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-8 py-5 border-b border-white/6 shrink-0">
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-white">Applications</h2>
-            {!isLoading && (
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-violet-500/15 text-violet-400 border border-violet-500/20">
-                {pagination.total}
-              </span>
-            )}
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+              <Briefcase size={16} className="text-violet-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-white">Applications</h2>
+                {!isLoading && (
+                  <span
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.25)' }}
+                  >
+                    {pagination.total}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Page {pagination.page} of {pagination.pages || 1}
+              </p>
+            </div>
           </div>
-          <Button variant="primary" onClick={handleOpenAdd}>
-            <Plus size={16} />
+
+          <button
+            onClick={handleOpenAdd}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all"
+            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(139,92,246,0.25)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(139,92,246,0.15)'}
+          >
+            <Plus size={13} />
             Add Application
-          </Button>
+          </button>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* ── Toolbar ── */}
+        <div className="flex items-center gap-3 px-8 py-3 border-b border-white/5 shrink-0">
           {/* Search */}
-          <div className="relative flex-1 max-w-sm">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+          <div className="relative w-60">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
             <input
               type="text"
-              placeholder="Search company or role..."
+              placeholder="Search company or role…"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
+              className="w-full pl-8 pr-3 py-2 rounded-xl text-xs text-white placeholder-gray-600 focus:outline-none transition-all"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              onFocus={e => e.currentTarget.style.borderColor = 'rgba(139,92,246,0.4)'}
+              onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
             />
           </div>
 
-          {/* Status pills — horizontal scroll on mobile */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
-            {STATUS_FILTERS.map((sf) => (
-              <button
-                key={sf.value}
-                onClick={() => setFilter('status', sf.value)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
-                  filters.status === sf.value
-                    ? 'bg-violet-500/20 text-violet-300 border-violet-500/40'
-                    : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/20 hover:text-gray-300'
-                }`}
-              >
-                {sf.label}
-              </button>
-            ))}
+          {/* Status filter pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1">
+            {STATUS_FILTERS.map((sf) => {
+              const sc = STATUS_COLORS[sf.value] || STATUS_COLORS[''];
+              const isActive = filters.status === sf.value;
+              return (
+                <button
+                  key={sf.value}
+                  onClick={() => setFilter('status', sf.value)}
+                  className="shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-all"
+                  style={{
+                    background: isActive ? sc.bg : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${isActive ? sc.border : 'rgba(255,255,255,0.08)'}`,
+                    color: isActive ? sc.color : '#6b7280',
+                  }}
+                >
+                  {sf.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Sort dropdown */}
           <div className="relative shrink-0">
-            <Button
-              variant="secondary"
-              size="sm"
+            <button
               onClick={() => setSortOpen((v) => !v)}
-              className="flex items-center gap-1.5"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-gray-400 hover:text-white transition-colors"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <SlidersHorizontal size={13} />
+              <SlidersHorizontal size={12} />
               {currentSortLabel}
-            </Button>
+              <ChevronDown size={11} className={`transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
+            </button>
             <AnimatePresence>
               {sortOpen && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -8 }}
-                  transition={{ duration: 0.15 }}
-                  onBlur={() => setSortOpen(false)}
-                  className="absolute right-0 top-10 z-30 w-44 backdrop-blur-xl bg-gray-900/95 border border-white/10 rounded-xl shadow-2xl overflow-hidden"
+                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute right-0 top-9 z-30 w-44 rounded-xl shadow-2xl overflow-hidden"
+                  style={{ background: '#161616', border: '1px solid rgba(255,255,255,0.1)' }}
                 >
                   {SORT_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => { setFilter('sortBy', opt.value); setSortOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-white/5 ${
-                        filters.sortBy === opt.value ? 'text-violet-400' : 'text-gray-300'
-                      }`}
+                      className="w-full text-left px-4 py-2.5 text-xs transition-colors hover:bg-white/5"
+                      style={{ color: filters.sortBy === opt.value ? '#a78bfa' : '#9ca3af' }}
                     >
                       {opt.label}
                     </button>
@@ -153,60 +186,61 @@ export default function ApplicationsPage() {
           </div>
         </div>
 
-        {/* Error */}
+        {/* ── Error ── */}
         {error && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          <div className="mx-8 mt-4 px-4 py-3 rounded-xl text-xs text-red-400"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
             {error}
           </div>
         )}
 
-        {/* Table */}
-        <Card padding="p-0">
-          <ApplicationTable
-            applications={applications}
-            isLoading={isLoading}
-            onRowClick={setDrawerAppId}
-            onEdit={handleOpenEdit}
-            onDelete={handleDelete}
-            sortBy={filters.sortBy}
-            sortOrder={filters.sortOrder}
-            onSort={(key, order) => { setFilter('sortBy', key); setFilter('sortOrder', order); }}
-          />
-        </Card>
+        {/* ── Table ── */}
+        <div className="flex-1 px-8 py-4">
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <ApplicationTable
+              applications={applications}
+              isLoading={isLoading}
+              onRowClick={setDrawerAppId}
+              onEdit={handleOpenEdit}
+              onDelete={handleDelete}
+              sortBy={filters.sortBy}
+              sortOrder={filters.sortOrder}
+              onSort={(key, order) => { setFilter('sortBy', key); setFilter('sortOrder', order); }}
+            />
+          </div>
+        </div>
 
-        {/* Pagination */}
+        {/* ── Pagination ── */}
         {!isLoading && pagination.total > 0 && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">
-              Page {pagination.page} of {pagination.pages} · {pagination.total} applications
+          <div className="flex items-center justify-between px-8 py-4 border-t border-white/6 shrink-0">
+            <span className="text-xs text-gray-600">
+              {pagination.total} applications · page {pagination.page} of {pagination.pages}
             </span>
             <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
+              <button
                 onClick={() => setPage(pagination.page - 1)}
                 disabled={pagination.page <= 1}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <ChevronLeft size={14} />
-                Prev
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
+                <ChevronLeft size={13} /> Prev
+              </button>
+              <button
                 onClick={() => setPage(pagination.page + 1)}
                 disabled={pagination.page >= pagination.pages}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                Next
-                <ChevronRight size={14} />
-              </Button>
+                Next <ChevronRight size={13} />
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Modal */}
       <ApplicationModal
         isOpen={showModal}
         mode={editingApp ? 'edit' : 'add'}
@@ -214,8 +248,6 @@ export default function ApplicationsPage() {
         onClose={handleCloseModal}
         onSave={handleSave}
       />
-
-      {/* Detail Drawer */}
       <ApplicationDrawer
         applicationId={drawerAppId}
         onClose={() => setDrawerAppId(null)}

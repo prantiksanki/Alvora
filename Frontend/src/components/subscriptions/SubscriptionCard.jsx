@@ -108,8 +108,7 @@ const SubscriptionCard = ({ subscription, onSave, isSaving }) => {
   const totalTracked = (draft.companies?.length || 0);
 
   return (
-    <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none" />
+    <div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.07)' }}>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-4">

@@ -26,12 +26,22 @@ const fetchCodeforcesStats = async (handle) => {
     }
   }
 
+  // Build per-day activity calendar from all accepted submissions
+  const activityCalendar = {};
+  for (const sub of submissions) {
+    if (sub.verdict === 'OK' && sub.creationTimeSeconds) {
+      const date = new Date(sub.creationTimeSeconds * 1000).toISOString().split('T')[0];
+      activityCalendar[date] = (activityCalendar[date] || 0) + 1;
+    }
+  }
+
   return {
     rating: userInfo.rating || 0,
     maxRating: userInfo.maxRating || 0,
     rank: userInfo.rank || 'unrated',
     contestCount: contests.length,
     solvedCount: solvedSet.size,
+    activityCalendar,
   };
 };
 

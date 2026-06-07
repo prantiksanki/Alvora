@@ -13,11 +13,11 @@ const PLATFORM_SERVICES = {
 const normalizeStats = (platform, data) => {
   switch (platform) {
     case 'github':
-      return { solvedCount: 0, rating: 0, contestCount: 0, streak: 0, extraData: data };
+      return { solvedCount: 0, rating: 0, contestCount: 0, streak: 0, extraData: { ...data, activityCalendar: data.activityCalendar || {} } };
     case 'codeforces':
-      return { solvedCount: data.solvedCount, rating: data.rating, contestCount: data.contestCount, streak: 0, extraData: { maxRating: data.maxRating, rank: data.rank } };
+      return { solvedCount: data.solvedCount, rating: data.rating, contestCount: data.contestCount, streak: 0, extraData: { maxRating: data.maxRating, rank: data.rank, activityCalendar: data.activityCalendar || {} } };
     case 'leetcode':
-      return { solvedCount: data.solvedCount, rating: data.ranking, contestCount: 0, streak: data.streak, extraData: { easySolved: data.easySolved, mediumSolved: data.mediumSolved, hardSolved: data.hardSolved, totalActiveDays: data.totalActiveDays } };
+      return { solvedCount: data.solvedCount, rating: data.ranking, contestCount: 0, streak: data.streak, extraData: { easySolved: data.easySolved, mediumSolved: data.mediumSolved, hardSolved: data.hardSolved, totalActiveDays: data.totalActiveDays, submissionCalendar: data.submissionCalendar || {} } };
     case 'gfg':
       return { solvedCount: data.solvedCount, rating: data.score, contestCount: 0, streak: data.streak, extraData: {} };
     default:

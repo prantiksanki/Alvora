@@ -42,14 +42,14 @@ const getInsights = asyncHandler(async (req, res) => {
 const refreshInsights = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString();
 
+  // Always delete cached insights so the next GET regenerates fresh
+  await AIInsight.deleteOne({ userId: req.user._id });
+
   const queue = getAnalyticsQueue();
   if (queue) {
     await queue.add('refresh-insights', { userId });
-    return res.status(202).json({ message: 'Insights refresh queued. Check back in a moment.' });
   }
 
-  // Fallback: delete existing and redirect to GET
-  await AIInsight.deleteOne({ userId: req.user._id });
   res.status(202).json({ message: 'Insights cleared. Refresh the page to regenerate.' });
 });
 
