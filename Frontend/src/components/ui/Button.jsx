@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 
 const VARIANTS = {
-  primary: 'bg-violet-600 hover:bg-violet-500 active:bg-violet-700 text-white shadow-lg shadow-violet-500/25',
-  secondary: 'bg-white/10 hover:bg-white/15 active:bg-white/20 text-white border border-white/10',
-  ghost: 'hover:bg-white/5 active:bg-white/10 text-gray-400 hover:text-white',
+  primary: 'bg-[#c9b99a] hover:bg-[#d4c5ab] active:bg-[#b8a88a] text-[#0d0c09] shadow-lg shadow-[#c9b99a]/20',
+  secondary: 'bg-[#E1E0CC]/8 hover:bg-[#E1E0CC]/12 active:bg-[#E1E0CC]/16 text-[#E1E0CC] border border-[#E1E0CC]/15',
+  ghost: 'hover:bg-[#E1E0CC]/5 active:bg-[#E1E0CC]/8 text-[#9c9a8e] hover:text-[#E1E0CC]',
   danger: 'bg-red-600/80 hover:bg-red-500 active:bg-red-700 text-white',
 };
 

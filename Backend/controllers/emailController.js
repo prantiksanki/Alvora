@@ -15,7 +15,7 @@ const logger = require('../utils/logger');
  * Returns the Google OAuth consent URL. Frontend redirects the user to it.
  */
 const connectGmail = asyncHandler(async (req, res) => {
-  const authUrl = generateAuthUrl(req.user._id.toString());
+  const authUrl = generateAuthUrl(req.user._id.toString(), req);
   res.status(200).json({ authUrl });
 });
 
@@ -41,16 +41,17 @@ const gmailCallback = asyncHandler(async (req, res) => {
     );
   }
 
-  let userId;
+  let userId, redirectUri;
   try {
-    ({ userId } = JSON.parse(Buffer.from(state, 'base64').toString('utf8')));
+    ({ userId, redirectUri } = JSON.parse(Buffer.from(state, 'base64').toString('utf8')));
   } catch {
     return res.redirect(
       `${process.env.FRONTEND_URL}/settings/emails?error=invalid_state`
     );
   }
 
-  const tokens = await exchangeCodeForTokens(code);
+  // Use the redirectUri stored in state — must exactly match what was sent to Google
+  const tokens = await exchangeCodeForTokens(code, redirectUri);
 
   if (!tokens.refresh_token) {
     logger.warn('No refresh_token received — user may have already authorized this app', { userId });

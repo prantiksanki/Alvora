@@ -13,7 +13,7 @@ import PageTransition from '../components/animations/PageTransition';
 import { OverviewGrid, PlatformCard, ActivityFeed, StreakWidget } from '../components/dashboard';
 import InsightCard from '../components/dashboard/InsightCard';
 import ContestCountdown from '../components/dashboard/ContestCountdown';
-import { SolvedChart, PlatformComparisonChart } from '../components/charts';
+import { PlatformComparisonChart } from '../components/charts';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 
@@ -52,11 +52,6 @@ export default function DashboardPage() {
     // Fallback: if socket event never fires (no socket connection), stop spinner after 15s
     setTimeout(() => setIsSyncing(false), 15000);
   };
-
-  // Build solved-over-time data for SolvedChart
-  const solvedHistory = history
-    .filter((s) => s.platform === 'leetcode')
-    .map((s) => ({ date: s.date, count: s.solvedCount }));
 
   // Current streak across all platforms
   const maxStreak = Math.max(...overview.map((s) => s.streak || 0), 0);
@@ -142,11 +137,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Card>
-            <p className="text-sm font-semibold text-white mb-4">Problems Solved (Last 30 Days)</p>
-            <SolvedChart data={solvedHistory.slice(-30)} isLoading={isLoading} />
-          </Card>
+        <div className="grid grid-cols-1 gap-4">
           <Card>
             <p className="text-sm font-semibold text-white mb-4">Platform Comparison</p>
             <PlatformComparisonChart overview={overview} isLoading={isLoading} />

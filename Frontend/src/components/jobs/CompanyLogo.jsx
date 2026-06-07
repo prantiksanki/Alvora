@@ -158,6 +158,7 @@ const DOMAIN_OVERRIDES = {
   'coursera': 'coursera.org',
 
   // Other
+  'andurilindustries': 'anduril.com',
   'spacex': 'spacex.com',
   'palantir': 'palantir.com',
   'automattic': 'automattic.com',

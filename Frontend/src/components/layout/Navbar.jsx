@@ -7,13 +7,10 @@ import { useNotifications } from '../../hooks/useNotifications';
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
-  '/analytics': 'Analytics',
-  '/goals': 'Goals',
   '/settings': 'Settings',
   '/insights': 'AI Insights',
   '/contests': 'Contests',
   '/daily': 'Daily Problems',
-  '/year': 'Year in Code',
   '/job-tracker': 'Job Tracker',
   '/job-tracker/applications': 'Applications',
   '/job-tracker/emails': 'Email Accounts',
@@ -49,15 +46,15 @@ const Navbar = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 border-b border-white/8 bg-[#111118]/80 backdrop-blur-md shrink-0">
+    <header className="h-16 flex items-center justify-between px-6 border-b border-[#E1E0CC]/8 bg-[#16140e]/80 backdrop-blur-md shrink-0">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}
-          className="md:hidden text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+          className="md:hidden text-[#9c9a8e] hover:text-[#E1E0CC] p-1.5 rounded-lg hover:bg-[#E1E0CC]/5 transition-colors"
         >
           <Menu size={20} />
         </button>
-        <h1 className="text-base font-semibold text-white hidden md:block">
+        <h1 className="text-base font-semibold text-[#E1E0CC] hidden md:block">
           {PAGE_TITLES[pathname] || 'Alvora'}
         </h1>
       </div>
@@ -67,11 +64,11 @@ const Navbar = ({ onMenuToggle }) => {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => { setNotifOpen((v) => !v); if (!notifOpen) fetchNotifications(); }}
-            className="relative text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+            className="relative text-[#9c9a8e] hover:text-[#E1E0CC] p-2 rounded-lg hover:bg-[#E1E0CC]/5 transition-colors"
           >
             <Bell size={18} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-violet-500 text-[9px] font-bold text-white flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#c9b99a] text-[9px] font-bold text-[#0d0c09] flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -84,24 +81,24 @@ const Navbar = ({ onMenuToggle }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-gray-900/95 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+                className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-[#1e1b13]/95 border border-[#E1E0CC]/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
               >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
-                  <p className="text-sm font-semibold text-white">Notifications</p>
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#E1E0CC]/8">
+                  <p className="text-sm font-semibold text-[#E1E0CC]">Notifications</p>
                   {unreadCount > 0 && (
-                    <button onClick={markAllRead} className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1">
+                    <button onClick={markAllRead} className="text-xs text-[#c9b99a] hover:text-[#E1E0CC] flex items-center gap-1">
                       <Check size={11} /> Mark all read
                     </button>
                   )}
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-6">No notifications yet</p>
+                    <p className="text-sm text-center py-6" style={{ color: '#6b6960' }}>No notifications yet</p>
                   ) : (
                     notifications.map((n) => (
-                      <div key={n._id} className={`px-4 py-3 border-b border-white/5 last:border-0 ${!n.read ? 'bg-violet-500/5' : ''}`}>
-                        <p className="text-sm text-gray-200">{n.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{n.message}</p>
+                      <div key={n._id} className={`px-4 py-3 border-b border-[#E1E0CC]/5 last:border-0 ${!n.read ? 'bg-[#c9b99a]/5' : ''}`}>
+                        <p className="text-sm text-[#E1E0CC]">{n.title}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#6b6960' }}>{n.message}</p>
                       </div>
                     ))
                   )}
@@ -115,14 +112,14 @@ const Navbar = ({ onMenuToggle }) => {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((v) => !v)}
-            className="flex items-center gap-2.5 hover:bg-white/5 rounded-xl px-2 py-1.5 transition-colors"
+            className="flex items-center gap-2.5 hover:bg-[#E1E0CC]/5 rounded-xl px-2 py-1.5 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-xs font-bold text-white">
+            <div className="w-8 h-8 rounded-full bg-[#c9b99a] flex items-center justify-center text-xs font-bold text-[#0d0c09]">
               {initials}
             </div>
             <div className="hidden sm:block text-left">
-              <p className="text-sm font-medium text-white leading-tight">{user?.name}</p>
-              <p className="text-xs text-gray-400 leading-tight">{user?.email}</p>
+              <p className="text-sm font-medium text-[#E1E0CC] leading-tight">{user?.name}</p>
+              <p className="text-xs leading-tight" style={{ color: '#9c9a8e' }}>{user?.email}</p>
             </div>
           </button>
 
@@ -133,16 +130,16 @@ const Navbar = ({ onMenuToggle }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -8 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-12 w-48 backdrop-blur-xl bg-gray-900/95 border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
+                className="absolute right-0 top-12 w-48 backdrop-blur-xl bg-[#1e1b13]/95 border border-[#E1E0CC]/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden z-50"
               >
                 <button
                   onClick={() => { navigate('/settings'); setDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#b8b5a8] hover:text-[#E1E0CC] hover:bg-[#E1E0CC]/5 transition-colors"
                 >
                   <Settings size={15} />
                   Settings
                 </button>
-                <div className="border-t border-white/8" />
+                <div className="border-t border-[#E1E0CC]/8" />
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors"

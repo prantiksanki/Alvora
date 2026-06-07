@@ -47,24 +47,22 @@ export default function SignupPage() {
   const strength = getPasswordStrength(form.password);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex">
+    <div className="min-h-screen bg-[#0d0c09] flex">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-1 flex-col justify-center items-center relative overflow-hidden bg-gradient-to-br from-violet-900/20 to-[#0a0a0f]">
+      <div className="hidden lg:flex flex-1 flex-col justify-center items-center relative overflow-hidden bg-linear-to-br from-[#c9b99a]/10 to-[#0d0c09]">
         <motion.div
-          animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.3, 0.2] }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
           transition={{ repeat: Infinity, duration: 6 }}
-          className="absolute w-96 h-96 bg-violet-600/20 rounded-full blur-3xl top-1/4 left-1/4"
+          className="absolute w-96 h-96 bg-[#c9b99a]/12 rounded-full blur-3xl top-1/4 left-1/4"
         />
         <motion.div
-          animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
+          animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.15, 0.08] }}
           transition={{ repeat: Infinity, duration: 8, delay: 2 }}
-          className="absolute w-64 h-64 bg-cyan-500/15 rounded-full blur-3xl bottom-1/3 right-1/4"
+          className="absolute w-64 h-64 bg-[#E1E0CC]/8 rounded-full blur-3xl bottom-1/3 right-1/4"
         />
         <div className="relative z-10 text-center px-8">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-            Alvora
-          </h1>
-          <p className="text-gray-400 text-lg max-w-xs">
+          <h1 className="text-5xl font-bold text-[#E1E0CC] mb-4">Alvora</h1>
+          <p className="text-lg max-w-xs" style={{ color: '#9c9a8e' }}>
             Start tracking your developer progress today.
           </p>
         </div>
@@ -79,14 +77,12 @@ export default function SignupPage() {
           className="w-full max-w-sm"
         >
           <div className="lg:hidden mb-8 text-center">
-            <span className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
-              Alvora
-            </span>
+            <span className="text-3xl font-bold text-[#E1E0CC]">Alvora</span>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white">Create account</h2>
-            <p className="text-gray-400 text-sm mt-1">Join and start tracking your growth</p>
+            <h2 className="text-2xl font-bold text-[#E1E0CC]">Create account</h2>
+            <p className="text-sm mt-1" style={{ color: '#9c9a8e' }}>Join and start tracking your growth</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,8 +101,8 @@ export default function SignupPage() {
               {form.password && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-500">Password strength</span>
-                    <span className="text-xs text-gray-400">{strength.label}</span>
+                    <span className="text-xs" style={{ color: '#6b6960' }}>Password strength</span>
+                    <span className="text-xs" style={{ color: '#9c9a8e' }}>{strength.label}</span>
                   </div>
                   <div className="h-1 w-full bg-white/8 rounded-full overflow-hidden">
                     <motion.div
@@ -127,15 +123,15 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <p className="text-center text-sm mt-6" style={{ color: '#9c9a8e' }}>
             Already have an account?{' '}
-            <Link to="/login" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">
+            <Link to="/login" className="text-[#c9b99a] hover:text-[#E1E0CC] font-medium transition-colors">
               Sign in
             </Link>
           </p>
 
-          <p className="text-center text-xs text-gray-600 mt-4">
-            <Link to="/" className="hover:text-gray-400 transition-colors">← Back to home</Link>
+          <p className="text-center text-xs mt-4" style={{ color: '#6b6960' }}>
+            <Link to="/" className="hover:text-[#9c9a8e] transition-colors">← Back to home</Link>
           </p>
         </motion.div>
       </div>

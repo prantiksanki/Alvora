@@ -11,7 +11,7 @@ const DashboardLayout = () => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#0a0a0f] overflow-hidden">
+    <div className="flex h-screen bg-[#0d0c09] overflow-hidden">
       {/* Desktop sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}

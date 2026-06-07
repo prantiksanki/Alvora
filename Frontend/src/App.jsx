@@ -12,12 +12,9 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import GoalsPage from './pages/GoalsPage';
 import SettingsPage from './pages/SettingsPage';
 import InsightsPage from './pages/InsightsPage';
 import ContestsPage from './pages/ContestsPage';
-import YearInCodePage from './pages/YearInCodePage';
 import JobTrackerPage from './pages/job-tracker/JobTrackerPage';
 import ApplicationsPage from './pages/job-tracker/ApplicationsPage';
 import EmailsPage from './pages/job-tracker/EmailsPage';
@@ -38,12 +35,9 @@ function AnimatedRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/goals" element={<GoalsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/contests" element={<ContestsPage />} />
-            <Route path="/year" element={<YearInCodePage />} />
             <Route path="/job-tracker" element={<JobTrackerPage />} />
             <Route path="/job-tracker/applications" element={<ApplicationsPage />} />
             <Route path="/job-tracker/emails" element={<EmailsPage />} />

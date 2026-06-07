@@ -6,7 +6,6 @@ import { useApplications } from '../../hooks/useApplications';
 import JobStatsGrid from '../../components/job-tracker/JobStatsGrid';
 import RecentApplications from '../../components/job-tracker/RecentApplications';
 import ApplicationFunnel from '../../components/job-tracker/ApplicationFunnel';
-import JobAnalyticsCharts, { transformMonthlyData, transformCompaniesData } from '../../components/analytics/JobAnalyticsCharts';
 import ApplicationModal from '../../components/applications/ApplicationModal';
 import ApplicationDrawer from '../../components/applications/ApplicationDrawer';
 import PageTransition from '../../components/animations/PageTransition';
@@ -36,9 +35,6 @@ export default function JobTrackerPage() {
     await deleteApplication(id);
     if (drawerAppId === id) setDrawerAppId(null);
   };
-
-  const monthlyData = transformMonthlyData(stats?.byMonth);
-  const companiesData = transformCompaniesData(stats?.topCompanies);
 
   return (
     <PageTransition>
@@ -86,23 +82,6 @@ export default function JobTrackerPage() {
               <p className="text-sm font-semibold text-white">Pipeline</p>
             </div>
             <ApplicationFunnel stats={stats} isLoading={statsLoading} />
-          </Card>
-        </div>
-
-        {/* Charts row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Card>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-white">Applications Over Time</p>
-            </div>
-            <JobAnalyticsCharts.Monthly data={monthlyData} isLoading={statsLoading} />
-          </Card>
-
-          <Card>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-white">Top Companies</p>
-            </div>
-            <JobAnalyticsCharts.Companies data={companiesData} isLoading={statsLoading} />
           </Card>
         </div>
 
