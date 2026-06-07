@@ -15,6 +15,7 @@ import api from '../services/api';
 import PageTransition from '../components/animations/PageTransition';
 import AnimatedCounter from '../components/ui/AnimatedCounter';
 import { HeatmapChart } from '../components/charts';
+import ProfileCardModal from '../components/profile-card/ProfileCardModal';
 
 const PLATFORMS = ['leetcode', 'codeforces', 'github', 'gfg', 'codechef', 'atcoder'];
 
@@ -181,10 +182,12 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { overview, history, isLoading, error, refetch } = useAnalytics();
   const { insights } = useInsights();
-  const { badges } = useGamification();
+  const gamification = useGamification();
+  const { badges } = gamification;
   const { lastSnapshotUpdate } = useJobSocket();
   const [contests, setContests] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showProfileCard, setShowProfileCard] = useState(false);
 
   useEffect(() => {
     api.get('/contests/upcoming').then(({ data }) => setContests(data)).catch(() => {});
@@ -230,6 +233,7 @@ export default function DashboardPage() {
   const connectedCount = PLATFORMS.filter((p) => overview.find((s) => s.platform === p)).length;
 
   return (
+    <>
     <PageTransition>
       <div className="-m-4 md:-m-6 flex flex-row-reverse gap-0" style={{ background: '#0a0a0a', minHeight: 'calc(100vh - 64px)' }}>
 
@@ -271,9 +275,12 @@ export default function DashboardPage() {
             <h2 className="text-lg font-bold text-white">{user?.name || 'Developer'}</h2>
             <p className="text-sm text-gray-500 mt-0.5">@{user?.username || user?.name?.toLowerCase().replace(/\s+/g, '') || 'user'}</p>
 
-            <button className="mt-3 w-full py-2 px-4 rounded-xl text-sm font-semibold text-white"
-              style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
-              Get your Profile Card
+            <button
+              onClick={() => setShowProfileCard(true)}
+              className="mt-3 w-full py-2 px-4 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', boxShadow: '0 4px 16px rgba(139,92,246,0.3)' }}
+            >
+              ✦ Get your Profile Card
             </button>
 
             {/* Social icons */}
@@ -503,6 +510,15 @@ export default function DashboardPage() {
         </div>
       </div>
     </PageTransition>
+
+    <ProfileCardModal
+      isOpen={showProfileCard}
+      onClose={() => setShowProfileCard(false)}
+      user={user}
+      overview={overview}
+      gamification={gamification}
+    />
+  </>
   );
 }
 
