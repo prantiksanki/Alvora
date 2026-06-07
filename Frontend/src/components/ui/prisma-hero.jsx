@@ -64,7 +64,13 @@ export const WordsPullUpMultiStyle = ({ segments, className = "", style }) => {
 };
 
 /* ---------------- Hero ---------------- */
-const navItems = ["Features", "Dashboard", "Tracker", "Analytics", "Sign In"];
+const navItems = [
+  { label: "Features",  to: "/#features" },
+  { label: "Dashboard", to: "/dashboard" },
+  { label: "Tracker",   to: "/tracker" },
+  { label: "Analytics", to: "/dashboard" },
+  { label: "Sign In",   to: "/login" },
+];
 
 const PrismaHero = () => {
   return (
@@ -84,38 +90,23 @@ const PrismaHero = () => {
         {/* Noise overlay */}
         <div className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.7] mix-blend-overlay" />
 
-        {/* Gradient overlay — fades fully into the page atmosphere at bottom */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, transparent 35%, transparent 55%, rgba(13,11,8,0.75) 80%, rgba(13,11,8,1) 100%)',
-          }}
-        />
-
-        {/* Warm amber bottom tint — bridges hero into the atmospheric sections below */}
-        <div
-          className="pointer-events-none absolute bottom-0 left-0 right-0 h-48"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 100% at 50% 100%, rgba(180,120,60,0.12) 0%, transparent 70%)',
-          }}
-        />
+        {/* Gradient overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
 
         {/* Inner nav (decorative, inside hero) */}
         <nav className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
           <div className="flex items-center gap-3 rounded-b-2xl bg-black px-4 py-2 sm:gap-6 md:gap-12 md:rounded-b-3xl md:px-8 lg:gap-14">
             {navItems.map((item) => (
-              <a
-                key={item}
-                href="#"
+              <Link
+                key={item.label}
+                to={item.to}
                 className="text-[10px] transition-colors sm:text-xs md:text-sm"
                 style={{ color: "rgba(225, 224, 204, 0.8)" }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#E1E0CC")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(225, 224, 204, 0.8)")}
               >
-                {item}
-              </a>
+                {item.label}
+              </Link>
             ))}
           </div>
         </nav>
@@ -134,7 +125,6 @@ const PrismaHero = () => {
             </div>
 
             <div className="col-span-12 flex flex-col gap-5 pb-6 lg:col-span-4 lg:pb-10">
-
               <motion.p
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -160,10 +150,11 @@ const PrismaHero = () => {
                   </span>
                 </Link>
               </motion.div>
-
             </div>
+
           </div>
         </div>
+
       </div>
     </section>
   );
