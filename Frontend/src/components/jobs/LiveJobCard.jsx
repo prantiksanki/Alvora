@@ -33,10 +33,14 @@ function timeAgo(date) {
 
 function stripHtml(str) {
   if (!str) return '';
-  return str
-    .replace(/<[^>]*>/g, ' ')
+  // Decode HTML entities first (handles double-encoded strings like &lt;div&gt;)
+  const decoded = str
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
     .replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
+    .replace(/&#\d+;/g, ' ');
+  // Strip all HTML tags, then collapse whitespace
+  return decoded
+    .replace(/<[^>]*>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }

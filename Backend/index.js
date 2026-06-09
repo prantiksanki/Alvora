@@ -25,6 +25,8 @@ const jobsRoutes = require('./routes/jobs');
 const subscriptionsRoutes = require('./routes/subscriptions');
 const monitorRoutes = require('./routes/monitor');
 const potdRoutes = require('./routes/potd');
+const publicCardRoutes = require('./routes/publicCard');
+const resumeRoutes = require('./routes/resume');
 
 // Job imports
 const { startSnapshotJob } = require('./jobs/snapshotJob');
@@ -52,6 +54,8 @@ const server = http.createServer(app);
 // Security middleware (order matters)
 app.use(helmet);
 app.use(cors);
+// Resume routes accept large payloads (full resume text) — must be registered BEFORE the global 10kb parser
+app.use('/api/resume', express.json({ limit: '2mb' }));
 app.use(jsonParser);
 
 // Request logging
@@ -77,6 +81,8 @@ app.use('/api/jobs', jobsRoutes);
 app.use('/api/subscriptions', subscriptionsRoutes);
 app.use('/api/monitor', monitorRoutes);
 app.use('/api/potd', potdRoutes);
+app.use('/api/public/card', publicCardRoutes);
+app.use('/api/resume', resumeRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', uptime: process.uptime() }));

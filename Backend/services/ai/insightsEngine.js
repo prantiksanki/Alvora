@@ -1,4 +1,5 @@
 const axios = require('axios');
+const logger = require('../../utils/logger');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -17,7 +18,7 @@ const getActiveDays = (history, lastNDays = 30) => {
 const getSnap = (overview, platform) =>
   overview.find((s) => s.platform === platform) || null;
 
-// ─── Scoring (unchanged) ─────────────────────────────────────────────────────
+// ─── Scoring ─────────────────────────────────────────────────────────────────
 
 const calculateScores = (overview, history) => {
   const lc  = getSnap(overview, 'leetcode');
@@ -37,8 +38,9 @@ const calculateScores = (overview, history) => {
   const ghFollowers = gh?.extraData?.followers   || 0;
 
   const activeDays = getActiveDays(history, 30);
-
-  const totalSolved = lcSolved + gfgSolved + ccSolved;
+  const cfSolved    = cf?.solvedCount || 0;
+  const atSolved    = at?.solvedCount || 0;
+  const totalSolved = lcSolved + gfgSolved + ccSolved + cfSolved + atSolved;
 
   const dsaReadiness = clamp(
     (Math.min(totalSolved, 300) / 300) * 40 +
@@ -62,85 +64,157 @@ const calculateScores = (overview, history) => {
   return { dsaReadiness, interviewReadiness, consistencyScore, openSourceScore };
 };
 
-// ─── Build prompt context ────────────────────────────────────────────────────
+// ─── Build detailed prompt context from real coding profile data ──────────────
 
 const buildStatsContext = (overview, history) => {
   const activeDays30 = getActiveDays(history, 30);
   const activeDays7  = getActiveDays(history, 7);
+  const activeDays14 = getActiveDays(history, 14);
+
+  const connectedPlatforms = overview.map((s) => s.platform);
 
   const platform = (p) => {
     const s = getSnap(overview, p);
-    if (!s) return `${p}: not connected`;
+    if (!s) return null;
     const extra = s.extraData || {};
     switch (p) {
       case 'leetcode':
-        return `LeetCode: ${s.solvedCount} solved (easy:${extra.easySolved||0} medium:${extra.mediumSolved||0} hard:${extra.hardSolved||0}), streak:${s.streak} days`;
+        return [
+          `LeetCode:`,
+          `  - Total solved: ${s.solvedCount}`,
+          `  - Easy: ${extra.easySolved || 0}, Medium: ${extra.mediumSolved || 0}, Hard: ${extra.hardSolved || 0}`,
+          `  - Current streak: ${s.streak || 0} days`,
+          `  - Ranking: ${extra.ranking || 'N/A'}`,
+          `  - Acceptance rate: ${extra.acceptanceRate || 'N/A'}`,
+        ].join('\n');
+
       case 'codeforces':
-        return `Codeforces: rating:${s.rating} (max:${extra.maxRating||s.rating}), rank:${extra.rank||'unrated'}, contests:${s.contestCount}`;
+        return [
+          `Codeforces:`,
+          `  - Current rating: ${s.rating || 'unrated'}`,
+          `  - Max rating: ${extra.maxRating || s.rating || 'N/A'}`,
+          `  - Rank: ${extra.rank || 'unrated'}`,
+          `  - Contests participated: ${s.contestCount || 0}`,
+          `  - Problems solved: ${s.solvedCount || 0}`,
+        ].join('\n');
+
       case 'github':
-        return `GitHub: ${extra.publicRepos||0} repos, ${extra.stars||0} stars, ${extra.followers||0} followers, top langs: ${Object.keys(extra.topLanguages||{}).slice(0,3).join('/')||'none'}`;
+        return [
+          `GitHub:`,
+          `  - Public repositories: ${extra.publicRepos || 0}`,
+          `  - Total stars: ${extra.stars || 0}`,
+          `  - Followers: ${extra.followers || 0}`,
+          `  - Following: ${extra.following || 0}`,
+          `  - Total contributions: ${extra.totalContributions || 0}`,
+          `  - Top languages: ${Object.keys(extra.topLanguages || {}).slice(0, 5).join(', ') || 'none'}`,
+        ].join('\n');
+
       case 'gfg':
-        return `GeeksForGeeks: ${s.solvedCount} solved, score:${s.rating}, streak:${s.streak} days`;
+        return [
+          `GeeksForGeeks:`,
+          `  - Problems solved: ${s.solvedCount || 0}`,
+          `  - Coding score: ${s.rating || 0}`,
+          `  - Current streak: ${s.streak || 0} days`,
+          `  - School: ${extra.school || 0}, Basic: ${extra.basic || 0}, Easy: ${extra.easy || 0}, Medium: ${extra.medium || 0}, Hard: ${extra.hard || 0}`,
+        ].join('\n');
+
       case 'codechef':
-        return `CodeChef: ${s.solvedCount} solved, rating:${s.rating} (max:${extra.maxRating||s.rating}), contests:${s.contestCount}`;
+        return [
+          `CodeChef:`,
+          `  - Problems solved: ${s.solvedCount || 0}`,
+          `  - Current rating: ${s.rating || 0}`,
+          `  - Max rating: ${extra.maxRating || s.rating || 0}`,
+          `  - Stars: ${extra.stars || 'N/A'}`,
+          `  - Contests participated: ${s.contestCount || 0}`,
+        ].join('\n');
+
       case 'atcoder':
-        return `AtCoder: rating:${s.rating} (max:${extra.maxRating||s.rating}), contests:${s.contestCount}`;
+        return [
+          `AtCoder:`,
+          `  - Current rating: ${s.rating || 0}`,
+          `  - Max rating: ${extra.maxRating || s.rating || 0}`,
+          `  - Contests participated: ${s.contestCount || 0}`,
+        ].join('\n');
+
       default:
-        return `${p}: ${s.solvedCount} solved, rating:${s.rating}`;
+        return `${p}: ${s.solvedCount || 0} solved, rating: ${s.rating || 0}`;
     }
   };
 
-  const lines = [
-    `Activity: ${activeDays30} active days in last 30 days, ${activeDays7} in last 7 days`,
-    platform('leetcode'),
-    platform('codeforces'),
-    platform('github'),
-    platform('gfg'),
-    platform('codechef'),
-    platform('atcoder'),
-  ];
+  const platformLines = ['leetcode', 'codeforces', 'github', 'gfg', 'codechef', 'atcoder']
+    .map((p) => platform(p))
+    .filter(Boolean);
 
-  return lines.join('\n');
+  const scores = calculateScores(overview, history);
+
+  const context = [
+    `=== ACTIVITY SUMMARY ===`,
+    `Connected platforms: ${connectedPlatforms.join(', ') || 'none'}`,
+    `Active days (last 7 days): ${activeDays7}`,
+    `Active days (last 14 days): ${activeDays14}`,
+    `Active days (last 30 days): ${activeDays30}`,
+    ``,
+    `=== PLATFORM STATS (fetched live from coding profiles) ===`,
+    ...platformLines,
+    ``,
+    `=== COMPUTED SCORES ===`,
+    `DSA Readiness: ${scores.dsaReadiness}/100`,
+    `Interview Readiness: ${scores.interviewReadiness}/100`,
+    `Consistency Score: ${scores.consistencyScore}/100`,
+    `Open Source Score: ${scores.openSourceScore}/100`,
+  ].join('\n');
+
+  return context;
 };
 
-// ─── OpenRouter / Qwen call ──────────────────────────────────────────────────
+// ─── OpenRouter / Gemini call ─────────────────────────────────────────────────
 
-const callQwen = async (overview, history) => {
+const callGemini = async (overview, history) => {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
 
   const statsContext = buildStatsContext(overview, history);
 
-  const systemPrompt = `You are an expert coding coach for a developer analytics platform called Alvora.
-Analyze the user's coding stats across multiple platforms and return exactly 4-6 concise, actionable insights.
+  logger.info('Calling Gemini via OpenRouter with stats context', {
+    platforms: overview.map((s) => s.platform),
+    contextLength: statsContext.length,
+  });
 
-Rules:
-- Be specific and data-driven — reference actual numbers from the stats
-- Each insight must be genuinely useful, not generic
-- Vary the categories: consistency, platform-specific tips, weaknesses, achievements
-- Severity must be one of: "success", "info", "warning", "tip"
-- Icon must be a single relevant emoji
-- Keep each message under 120 characters
+  const systemPrompt = `You are an expert coding coach and career advisor for a developer analytics platform called Alvora.
 
-Return ONLY valid JSON in this exact format, nothing else:
+You will receive REAL, LIVE data fetched directly from the user's coding profiles on LeetCode, Codeforces, GitHub, GeeksForGeeks, CodeChef, and AtCoder.
+
+Your job is to analyze these real stats and generate 5-7 highly specific, actionable insights. Each insight MUST:
+- Reference ACTUAL numbers from the provided stats (e.g., "You've solved 145 LeetCode problems...")
+- Be specific to THIS user's data — never give generic advice that could apply to anyone
+- Highlight strengths, weaknesses, and next concrete steps
+- Be direct and motivating
+
+Severity meanings:
+- "success": celebrating a real achievement from their data
+- "info": neutral observation or fact about their stats
+- "warning": a gap or weakness that needs attention
+- "tip": a specific actionable next step
+
+Return ONLY valid JSON, no markdown, no explanation:
 {
   "insights": [
-    { "category": "string", "message": "string", "severity": "success|info|warning|tip", "icon": "emoji" }
+    { "category": "string", "message": "string (max 130 chars)", "severity": "success|info|warning|tip", "icon": "single emoji" }
   ]
 }`;
 
-  const userPrompt = `Here are the user's current coding stats:\n\n${statsContext}\n\nGenerate 4-6 actionable insights based on these stats.`;
+  const userPrompt = `Here is this user's REAL coding profile data, fetched live from their connected accounts:\n\n${statsContext}\n\nGenerate 5-7 personalized, data-driven insights for THIS specific user based on their actual numbers above.`;
 
   const response = await axios.post(
     'https://openrouter.ai/api/v1/chat/completions',
     {
-      model: 'qwen/qwen3-235b-a22b:free',
+      model: 'google/gemini-2.5-flash-lite',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user',   content: userPrompt },
       ],
-      temperature: 0.7,
-      max_tokens: 800,
+      temperature: 0.6,
+      max_tokens: 1200,
     },
     {
       headers: {
@@ -149,19 +223,28 @@ Return ONLY valid JSON in this exact format, nothing else:
         'HTTP-Referer': 'https://alvora.app',
         'X-Title': 'Alvora',
       },
-      timeout: 30000,
+      timeout: 45000,
     }
   );
 
   const content = response.data?.choices?.[0]?.message?.content || '';
 
-  // Strip Qwen3 thinking tags and markdown code fences
+  logger.info('Gemini raw response received', { contentLength: content.length });
+
+  // Strip any markdown code fences or thinking tags
   const jsonStr = content
     .replace(/<think>[\s\S]*?<\/think>/gi, '')
     .replace(/```json\s*/gi, '')
     .replace(/```\s*/gi, '')
     .trim();
-  const parsed = JSON.parse(jsonStr);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch (parseErr) {
+    logger.error('Failed to parse Gemini JSON response', { jsonStr, parseErr: parseErr.message });
+    throw new Error(`JSON parse failed: ${parseErr.message}`);
+  }
 
   if (!Array.isArray(parsed.insights) || parsed.insights.length === 0) {
     throw new Error('Invalid insights format from LLM');
@@ -176,7 +259,6 @@ const ruleBasedInsights = (overview, history) => {
   const activeDays = getActiveDays(history, 30);
   const insights   = [];
 
-  // Consistency
   if (activeDays >= 20)
     insights.push({ category: 'Consistency', message: `Outstanding — ${activeDays} active days this month!`, severity: 'success', icon: '🔥' });
   else if (activeDays >= 10)
@@ -184,20 +266,29 @@ const ruleBasedInsights = (overview, history) => {
   else
     insights.push({ category: 'Consistency', message: `Only ${activeDays} active days in the last month. A daily habit matters.`, severity: 'warning', icon: '⚠️' });
 
-  // LeetCode
   const lc = getSnap(overview, 'leetcode');
   if (!lc)
     insights.push({ category: 'LeetCode', message: 'Connect your LeetCode profile to get personalized insights.', severity: 'tip', icon: '💡' });
-  else if (lc.streak >= 14)
-    insights.push({ category: 'LeetCode', message: `${lc.streak}-day LeetCode streak — keep it going!`, severity: 'success', icon: '🔥' });
+  else {
+    const extra = lc.extraData || {};
+    const total = lc.solvedCount || 0;
+    const hard  = extra.hardSolved || 0;
+    insights.push({ category: 'LeetCode', message: `${total} problems solved (${hard} Hard). ${hard < 10 ? 'Try more Hard problems to boost interview prep.' : 'Strong Hard problem count!'}`, severity: hard < 10 ? 'tip' : 'success', icon: hard < 10 ? '⬆️' : '💪' });
+    if (lc.streak >= 7)
+      insights.push({ category: 'LeetCode', message: `${lc.streak}-day streak — keep it going!`, severity: 'success', icon: '🔥' });
+  }
 
-  // Codeforces
   const cf = getSnap(overview, 'codeforces');
-  if (!cf)
-    insights.push({ category: 'Codeforces', message: 'Connect your Codeforces profile to track competitive programming.', severity: 'tip', icon: '🏆' });
-  else if (cf.rating > 0) {
+  if (cf && cf.rating > 0) {
     const next = cf.rating < 1200 ? 1200 : cf.rating < 1400 ? 1400 : cf.rating < 1600 ? 1600 : cf.rating < 1900 ? 1900 : 2100;
     insights.push({ category: 'Codeforces', message: `Rating ${cf.rating} — ${next - cf.rating} points to next milestone (${next}).`, severity: 'info', icon: '🎯' });
+  }
+
+  const gh = getSnap(overview, 'github');
+  if (gh) {
+    const repos = gh.extraData?.publicRepos || 0;
+    const stars = gh.extraData?.stars || 0;
+    insights.push({ category: 'GitHub', message: `${repos} public repos with ${stars} stars. ${stars === 0 ? 'Share your work to build visibility.' : 'Good open source presence!'}`, severity: stars === 0 ? 'tip' : 'info', icon: '⭐' });
   }
 
   return insights;
@@ -208,11 +299,20 @@ const ruleBasedInsights = (overview, history) => {
 const generateInsights = async (overview, history) => {
   const scores = calculateScores(overview, history);
 
+  logger.info('Generating insights', {
+    platforms: overview.map((s) => s.platform),
+    historyCount: history.length,
+  });
+
   try {
-    const insights = await callQwen(overview, history);
+    const insights = await callGemini(overview, history);
+    logger.info('AI insights generated successfully via Gemini', { count: insights.length });
     return { insights, scores };
   } catch (err) {
-    // Fall back to rule-based if LLM fails or key not set
+    logger.error('Gemini insight generation failed, falling back to rule-based', {
+      error: err.message,
+      stack: err.stack,
+    });
     const insights = ruleBasedInsights(overview, history);
     return { insights, scores };
   }

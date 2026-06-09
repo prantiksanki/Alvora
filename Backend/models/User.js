@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema({
   college: { type: String, default: '', trim: true },
   location: { type: String, default: 'India', trim: true },
   avatarColor: { type: String, default: '#2563eb' },
+  alertEmail: { type: String, default: '', trim: true, lowercase: true },
   createdAt: {
     type: Date,
     default: Date.now,

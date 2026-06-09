@@ -9,12 +9,24 @@ const JOB_LIST_CACHE_TTL = parseInt(process.env.JOB_CACHE_TTL || '300', 10);
  * GET /api/jobs
  * Paginated job listing with optional filters: company, source, employmentType, remote, search.
  */
+// Regex patterns that match location strings for each region value
+const REGION_PATTERNS = {
+  us:     /san francisco|new york|nyc|seattle|austin|chicago|boston|los angeles|denver|atlanta|washington|california|texas|georgia|indiana|illinois|virginia|massachusetts|\bca\b|\bny\b|\btx\b|\bwa\b|\bil\b|united states|\bus\b|sf,|nyc,/i,
+  india:  /india|bengaluru|bangalore|hyderabad|mumbai|pune|chennai|delhi|noida|gurugram|gurgaon|kolkata|\bin-/i,
+  remote: /remote/i,
+  uk:     /united kingdom|london|manchester|edinburgh|birmingham|\buk\b/i,
+  canada: /canada|toronto|vancouver|montreal|ottawa|calgary/i,
+  europe: /europe|germany|france|spain|netherlands|amsterdam|berlin|paris|madrid|stockholm|zurich|dublin|warsaw|prague|copenhagen/i,
+  apac:   /singapore|australia|japan|sydney|melbourne|tokyo|hong kong|korea|seoul|beijing|shanghai|taipei|bangkok|kuala lumpur/i,
+};
+
 const getJobs = asyncHandler(async (req, res) => {
   const {
     company,
     source,
     employmentType,
     remote,
+    region,
     search,
     page = 1,
     limit = 20,
@@ -28,10 +40,11 @@ const getJobs = asyncHandler(async (req, res) => {
   if (employmentType) query.employmentType = employmentType;
   if (remote === 'true') query.remote = true;
   if (remote === 'false') query.remote = false;
+  if (region && REGION_PATTERNS[region]) query.location = { $regex: REGION_PATTERNS[region] };
   if (search) query.title = { $regex: new RegExp(search, 'i') };
 
   // Cache based on query fingerprint
-  const cacheKey = `alvora:jobs:list:${JSON.stringify({ company, source, employmentType, remote, search, page, limit })}`;
+  const cacheKey = `alvora:jobs:list:${JSON.stringify({ company, source, employmentType, remote, region, search, page, limit })}`;
   const cached = await getCache(cacheKey);
   if (cached) return res.status(200).json(cached);
 

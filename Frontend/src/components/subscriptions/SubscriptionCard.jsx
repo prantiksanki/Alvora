@@ -231,26 +231,34 @@ const SubscriptionCard = ({ subscription, onSave, isSaving }) => {
               <label className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2 block">
                 Notifications
               </label>
-              <label className="flex items-center justify-between py-1.5 cursor-pointer">
-                <span className="text-sm text-gray-400">Real-time alerts</span>
-                <div
-                  onClick={() => setDraft((p) => ({
-                    ...p,
-                    notificationPreferences: {
-                      ...p.notificationPreferences,
-                      websocket: !p.notificationPreferences.websocket,
-                    },
-                  }))}
-                  className={`w-10 h-5 rounded-full cursor-pointer transition-all duration-200 relative ${
-                    draft.notificationPreferences.websocket ? 'bg-violet-600' : 'bg-white/10'
-                  }`}
-                >
+              {[
+                { key: 'websocket', label: 'Real-time alerts', sub: 'Push via browser' },
+                { key: 'email',     label: 'Email alerts',     sub: 'Sent to your alert email' },
+              ].map(({ key, label, sub }) => (
+                <div key={key} className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="text-sm text-gray-400">{label}</p>
+                    <p className="text-[10px] text-gray-600">{sub}</p>
+                  </div>
                   <div
-                    className="w-3.5 h-3.5 bg-white rounded-full absolute transition-all duration-200"
-                    style={{ top: '3px', left: draft.notificationPreferences.websocket ? '22px' : '3px' }}
-                  />
+                    onClick={() => setDraft((p) => ({
+                      ...p,
+                      notificationPreferences: {
+                        ...p.notificationPreferences,
+                        [key]: !p.notificationPreferences[key],
+                      },
+                    }))}
+                    className={`w-10 h-5 rounded-full cursor-pointer transition-all duration-200 relative shrink-0 ${
+                      draft.notificationPreferences[key] ? 'bg-violet-600' : 'bg-white/10'
+                    }`}
+                  >
+                    <div
+                      className="w-3.5 h-3.5 bg-white rounded-full absolute transition-all duration-200"
+                      style={{ top: '3px', left: draft.notificationPreferences[key] ? '22px' : '3px' }}
+                    />
+                  </div>
                 </div>
-              </label>
+              ))}
             </div>
 
             <div className="flex gap-2 pt-1">

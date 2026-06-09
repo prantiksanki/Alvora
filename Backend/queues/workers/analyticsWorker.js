@@ -25,7 +25,7 @@ const processAnalytics = async (job) => {
     }).sort({ date: 1 }).lean(),
   ]);
 
-  const result = generateInsights(overview, history);
+  const result = await generateInsights(overview, history);
 
   await AIInsight.findOneAndUpdate(
     { userId },

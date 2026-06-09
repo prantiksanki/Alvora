@@ -9,11 +9,20 @@ const logger = require('../utils/logger');
 const getInsights = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-  // Return cached insight if < 24 hours old
-  const existing = await AIInsight.findOne({ userId });
-  if (existing) return res.status(200).json(existing);
+  // Return cached insight if < 24 hours old (skip cache with ?force=true)
+  const forceRefresh = req.query.force === 'true';
+  if (!forceRefresh) {
+    const existing = await AIInsight.findOne({ userId });
+    if (existing) {
+      logger.info('Returning cached insights', { userId });
+      return res.status(200).json(existing);
+    }
+  } else {
+    await AIInsight.deleteOne({ userId });
+    logger.info('Force-refresh: cleared cached insights', { userId });
+  }
 
-  // Generate fresh insights synchronously
+  // Fetch latest snapshot per platform + 90-day history
   const [overview, history] = await Promise.all([
     Snapshot.aggregate([
       { $match: { userId: new mongoose.Types.ObjectId(userId) } },
@@ -27,6 +36,12 @@ const getInsights = asyncHandler(async (req, res) => {
     }).sort({ date: 1 }).lean(),
   ]);
 
+  logger.info('Snapshot data for insights', {
+    userId,
+    platformsFound: overview.map((s) => s.platform),
+    snapshotCount: history.length,
+  });
+
   const result = await generateInsights(overview, history);
 
   const insight = await AIInsight.findOneAndUpdate(
@@ -35,7 +50,7 @@ const getInsights = asyncHandler(async (req, res) => {
     { upsert: true, new: true }
   );
 
-  logger.info('Insights generated', { userId });
+  logger.info('Fresh insights generated and cached', { userId, insightCount: result.insights?.length });
   res.status(200).json(insight);
 });
 

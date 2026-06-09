@@ -20,6 +20,8 @@ import ApplicationsPage from './pages/job-tracker/ApplicationsPage';
 import EmailsPage from './pages/job-tracker/EmailsPage';
 import LiveJobsPage from './pages/live-jobs/LiveJobsPage';
 import DailyProblemsPage from './pages/DailyProblemsPage';
+import PublicCardPage from './pages/PublicCardPage';
+import ResumeTailorPage from './pages/ResumeTailorPage';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -30,6 +32,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/card/:userId" element={<PublicCardPage />} />
 
         {/* Protected routes inside DashboardLayout */}
         <Route element={<ProtectedRoute />}>
@@ -43,6 +46,7 @@ function AnimatedRoutes() {
             <Route path="/job-tracker/emails" element={<EmailsPage />} />
             <Route path="/live-jobs" element={<LiveJobsPage />} />
             <Route path="/daily" element={<DailyProblemsPage />} />
+            <Route path="/resume" element={<ResumeTailorPage />} />
           </Route>
         </Route>
 

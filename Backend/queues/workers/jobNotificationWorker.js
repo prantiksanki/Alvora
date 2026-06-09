@@ -6,16 +6,27 @@ const processJobNotification = async (job) => {
   const { jobId, userIds, type } = job.data;
 
   // Lazy requires to avoid circular dependency issues
-  const { createNotification } = require('../../services/notifications/notificationService');
+  const { createNotification, sendJobAlertEmail } = require('../../services/notifications/notificationService');
   const { emitNewJob } = require('../../services/websocket/jobSocketService');
   const JobPosting = require('../../models/JobPosting');
   const NotificationEvent = require('../../models/NotificationEvent');
+  const UserSubscription = require('../../models/UserSubscription');
+  const User = require('../../models/User');
 
   const jobPosting = await JobPosting.findById(jobId).lean();
   if (!jobPosting) {
     logger.warn('Job notification: posting not found', { jobId });
     return;
   }
+
+  // Batch-fetch subscriptions and users to avoid N queries per user
+  const [subscriptions, users] = await Promise.all([
+    UserSubscription.find({ userId: { $in: userIds }, isActive: true }).lean(),
+    User.find({ _id: { $in: userIds } }).select('email alertEmail').lean(),
+  ]);
+
+  const subByUser = Object.fromEntries(subscriptions.map((s) => [s.userId.toString(), s]));
+  const userById  = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
 
   for (const userId of userIds) {
     try {
@@ -38,6 +49,17 @@ const processJobNotification = async (job) => {
 
       // Real-time WebSocket push
       emitNewJob(userId, jobPosting);
+
+      // Email alert — only if user has opted in
+      const sub  = subByUser[userId];
+      const user = userById[userId];
+      if (sub?.notificationPreferences?.email && user) {
+        // Use custom alert email if set, otherwise fall back to login email
+        const to = user.alertEmail?.trim() || user.email;
+        sendJobAlertEmail(to, jobPosting).catch((err) =>
+          logger.error('Job alert email failed', { userId, jobId, error: err.message })
+        );
+      }
 
     } catch (err) {
       if (err.code === 11000) {

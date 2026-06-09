@@ -6,6 +6,7 @@ const DEFAULT_FILTERS = {
   source: '',
   employmentType: '',
   remote: '',
+  region: '',
   search: '',
   page: 1,
   limit: 20,
@@ -31,6 +32,7 @@ export function useJobs(initialFilters = {}) {
       if (activeFilters.source) params.source = activeFilters.source;
       if (activeFilters.employmentType) params.employmentType = activeFilters.employmentType;
       if (activeFilters.remote !== '') params.remote = activeFilters.remote;
+      if (activeFilters.region) params.region = activeFilters.region;
       if (activeFilters.search) params.search = activeFilters.search;
 
       const data = await jobsService.getJobs(params);

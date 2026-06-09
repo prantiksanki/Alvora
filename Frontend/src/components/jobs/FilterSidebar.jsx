@@ -54,6 +54,16 @@ const CheckOption = ({ label, value, checked, onChange }) => (
   </label>
 );
 
+const REGIONS = [
+  { label: '🇺🇸  United States', value: 'us'   },
+  { label: '🇮🇳  India',         value: 'india' },
+  { label: '🌍  Remote',         value: 'remote'},
+  { label: '🇬🇧  United Kingdom', value: 'uk'   },
+  { label: '🇨🇦  Canada',        value: 'canada'},
+  { label: '🌐  Europe',         value: 'europe'},
+  { label: '🌏  Asia Pacific',   value: 'apac'  },
+];
+
 const SOURCES = [
   { label: 'Greenhouse', value: 'greenhouse' },
   { label: 'Lever',      value: 'lever'       },
@@ -108,6 +118,16 @@ const FilterContent = ({ filters, onFilterChange, hasActiveFilters, onClose }) =
           onChange={(e) => onFilterChange('company', e.target.value)}
           className={inputCls}
         />
+      </FilterSection>
+
+      <FilterSection title="Region">
+        {REGIONS.map((r) => (
+          <CheckOption
+            key={r.value} label={r.label} value={r.value}
+            checked={filters.region === r.value}
+            onChange={(v, checked) => onFilterChange('region', checked ? v : '')}
+          />
+        ))}
       </FilterSection>
 
       <FilterSection title="Source" defaultOpen={false}>

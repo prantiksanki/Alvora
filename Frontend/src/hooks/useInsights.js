@@ -37,13 +37,17 @@ export function useInsights() {
     setIsLoading(true);
     setError(null);
     try {
-      await api.post('/insights/refresh');
-      // Small delay so backend can clear the cache, then regenerate
-      setTimeout(fetchInsights, 1500);
+      const { data } = await api.get('/insights?force=true');
+      setInsights(data.insights || []);
+      setScores(data.scores || null);
     } catch {
+      setInsights(MOCK_INSIGHTS.insights);
+      setScores(MOCK_INSIGHTS.scores);
+      setError('Could not refresh insights. Showing cached data.');
+    } finally {
       setIsLoading(false);
     }
-  }, [fetchInsights]);
+  }, []);
 
   useEffect(() => { fetchInsights(); }, [fetchInsights]);
 

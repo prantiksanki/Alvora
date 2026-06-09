@@ -21,10 +21,12 @@
 
 const COMPANIES = [
   // ─── FAANG / Big Tech ────────────────────────────────────────────────────
-  { name: 'Google',       provider: 'greenhouse',      identifier: 'google',        careerUrl: 'https://careers.google.com',          category: 'big-tech',   priority: 'high',   active: false },
-  { name: 'Meta',         provider: 'greenhouse',      identifier: 'meta',          careerUrl: 'https://www.metacareers.com',          category: 'big-tech',   priority: 'high',   active: false },
-  { name: 'Netflix',      provider: 'lever',           identifier: 'netflix',       careerUrl: 'https://jobs.netflix.com',            category: 'big-tech',   priority: 'high',   active: true  },
-  { name: 'Apple',        provider: 'greenhouse',      identifier: 'apple',         careerUrl: 'https://www.apple.com/jobs',          category: 'big-tech',   priority: 'high',   active: false },
+  { name: 'Google',       provider: 'workday',         identifier: 'google|wd3|External',               careerUrl: 'https://careers.google.com',          category: 'big-tech',   priority: 'high',   active: true  },
+  { name: 'Meta',         provider: 'greenhouse',      identifier: 'meta',                              careerUrl: 'https://www.metacareers.com',          category: 'big-tech',   priority: 'high',   active: true  },
+  { name: 'Amazon',       provider: 'workday',         identifier: 'amazon|wd5|External_Career_Site',   careerUrl: 'https://www.amazon.jobs',             category: 'big-tech',   priority: 'high',   active: true  },
+  { name: 'Apple',        provider: 'workday',         identifier: 'apple|wd5|APPLE-Global',            careerUrl: 'https://www.apple.com/jobs',          category: 'big-tech',   priority: 'high',   active: true  },
+  { name: 'Microsoft',    provider: 'workday',         identifier: 'microsoftcareers|wd5|External',     careerUrl: 'https://careers.microsoft.com',       category: 'big-tech',   priority: 'high',   active: true  },
+  { name: 'Netflix',      provider: 'lever',           identifier: 'netflix',                           careerUrl: 'https://jobs.netflix.com',            category: 'big-tech',   priority: 'high',   active: true  },
 
   // ─── Cloud / Enterprise Tech ─────────────────────────────────────────────
   { name: 'Stripe',       provider: 'greenhouse',      identifier: 'stripe',        careerUrl: 'https://stripe.com/jobs',             category: 'fintech',    priority: 'high',   active: true  },
@@ -38,15 +40,25 @@ const COMPANIES = [
   { name: 'Grafana Labs',  provider: 'greenhouse',     identifier: 'grafanalabs',   careerUrl: 'https://grafana.com/about/careers',   category: 'infra',      priority: 'medium', active: true  },
   { name: 'PagerDuty',    provider: 'greenhouse',      identifier: 'pagerduty',     careerUrl: 'https://www.pagerduty.com/careers',   category: 'infra',      priority: 'low',    active: true  },
 
+  // ─── Enterprise / Networking ─────────────────────────────────────────────
+  { name: 'Cisco',              provider: 'workday', identifier: 'cisco|wd5|External',                      careerUrl: 'https://jobs.cisco.com',              category: 'enterprise', priority: 'high',   active: true  },
+  { name: 'IBM',                provider: 'workday', identifier: 'ibm|wd5|External_Career_Site',            careerUrl: 'https://www.ibm.com/employment',      category: 'enterprise', priority: 'medium', active: true  },
+  { name: 'Intel',              provider: 'workday', identifier: 'intel|wd1|External',                      careerUrl: 'https://jobs.intel.com',              category: 'hardware',   priority: 'medium', active: true  },
+  { name: 'Qualcomm',           provider: 'workday', identifier: 'qualcomm|wd5|External_career',            careerUrl: 'https://careers.qualcomm.com',        category: 'hardware',   priority: 'medium', active: true  },
+  { name: 'ServiceNow',         provider: 'workday', identifier: 'servicenow|wd5|External_Career_Site',     careerUrl: 'https://careers.servicenow.com',      category: 'enterprise', priority: 'medium', active: true  },
+  { name: 'Palo Alto Networks', provider: 'workday', identifier: 'paloaltonetworks|wd5|External',           careerUrl: 'https://jobs.paloaltonetworks.com',   category: 'security',   priority: 'high',   active: true  },
+  { name: 'Intuit',             provider: 'workday', identifier: 'intuit|wd5|careers',                      careerUrl: 'https://careers.intuit.com',          category: 'fintech',    priority: 'medium', active: true  },
+  { name: 'VMware',             provider: 'workday', identifier: 'vmware|wd5|External',                     careerUrl: 'https://careers.vmware.com',          category: 'enterprise', priority: 'low',    active: true  },
+
   // ─── Developer Tools / Productivity ──────────────────────────────────────
   { name: 'Atlassian',    provider: 'lever',           identifier: 'atlassian',     careerUrl: 'https://www.atlassian.com/company/careers', category: 'dev-tools', priority: 'high', active: true },
-  { name: 'GitHub',       provider: 'greenhouse',      identifier: 'github',        careerUrl: 'https://github.com/about/careers',    category: 'dev-tools',  priority: 'high',   active: false },
+  { name: 'GitHub',       provider: 'greenhouse',      identifier: 'github',        careerUrl: 'https://github.com/about/careers',    category: 'dev-tools',  priority: 'high',   active: true  },
   { name: 'GitLab',       provider: 'greenhouse',      identifier: 'gitlab',        careerUrl: 'https://about.gitlab.com/jobs',       category: 'dev-tools',  priority: 'high',   active: true  },
   { name: 'Vercel',       provider: 'greenhouse',      identifier: 'vercel',        careerUrl: 'https://vercel.com/careers',          category: 'dev-tools',  priority: 'high',   active: true  },
   { name: 'Linear',       provider: 'ashby',           identifier: 'linear',        careerUrl: 'https://linear.app/careers',          category: 'dev-tools',  priority: 'high',   active: true  },
   { name: 'Notion',       provider: 'ashby',           identifier: 'notion',        careerUrl: 'https://www.notion.so/careers',       category: 'productivity', priority: 'high', active: true  },
   { name: 'Figma',        provider: 'greenhouse',      identifier: 'figma',         careerUrl: 'https://www.figma.com/careers',       category: 'design',     priority: 'high',   active: true  },
-  { name: 'Canva',        provider: 'greenhouse',      identifier: 'canva',         careerUrl: 'https://www.canva.com/careers',       category: 'design',     priority: 'high',   active: false },
+  { name: 'Canva',        provider: 'greenhouse',      identifier: 'canva',         careerUrl: 'https://www.canva.com/careers',       category: 'design',     priority: 'high',   active: true  },
   { name: 'Miro',         provider: 'ashby',           identifier: 'miro',          careerUrl: 'https://miro.com/careers',            category: 'productivity', priority: 'medium', active: true },
   { name: 'Loom',         provider: 'ashby',           identifier: 'loom',          careerUrl: 'https://www.loom.com/careers',        category: 'productivity', priority: 'low',  active: true  },
   { name: 'Airtable',     provider: 'greenhouse',      identifier: 'airtable',      careerUrl: 'https://airtable.com/careers',        category: 'productivity', priority: 'medium', active: true },
@@ -55,7 +67,7 @@ const COMPANIES = [
   // ─── AI / ML ──────────────────────────────────────────────────────────────
   { name: 'OpenAI',       provider: 'ashby',           identifier: 'openai',        careerUrl: 'https://openai.com/careers',          category: 'ai',         priority: 'high',   active: true  },
   { name: 'Anthropic',    provider: 'greenhouse',      identifier: 'anthropic',     careerUrl: 'https://www.anthropic.com/careers',   category: 'ai',         priority: 'high',   active: true  },
-  { name: 'Hugging Face', provider: 'greenhouse',      identifier: 'huggingface',   careerUrl: 'https://huggingface.co/jobs',         category: 'ai',         priority: 'high',   active: false },
+  { name: 'Hugging Face', provider: 'greenhouse',      identifier: 'huggingface',   careerUrl: 'https://huggingface.co/jobs',         category: 'ai',         priority: 'high',   active: true  },
   { name: 'Mistral AI',   provider: 'lever',           identifier: 'mistral',       careerUrl: 'https://mistral.ai/careers',          category: 'ai',         priority: 'high',   active: true  },
   { name: 'Cohere',       provider: 'ashby',           identifier: 'cohere',        careerUrl: 'https://cohere.com/careers',          category: 'ai',         priority: 'high',   active: true  },
   { name: 'Scale AI',     provider: 'greenhouse',      identifier: 'scaleai',       careerUrl: 'https://scale.com/careers',           category: 'ai',         priority: 'high',   active: true  },
@@ -89,9 +101,9 @@ const COMPANIES = [
   { name: 'Workday',      provider: 'greenhouse',      identifier: 'workday',       careerUrl: 'https://www.workday.com/en-us/company/careers.html', category: 'hr-tech', priority: 'low', active: false },
 
   // ─── E-commerce / Marketplace ─────────────────────────────────────────────
-  { name: 'Shopify',      provider: 'greenhouse',      identifier: 'shopify',       careerUrl: 'https://www.shopify.com/careers',     category: 'ecommerce',  priority: 'high',   active: false },
+  { name: 'Shopify',      provider: 'greenhouse',      identifier: 'shopify',       careerUrl: 'https://www.shopify.com/careers',     category: 'ecommerce',  priority: 'high',   active: true  },
   { name: 'Airbnb',       provider: 'greenhouse',      identifier: 'airbnb',        careerUrl: 'https://careers.airbnb.com',          category: 'marketplace',priority: 'high',   active: true  },
-  { name: 'DoorDash',     provider: 'greenhouse',      identifier: 'doordash',      careerUrl: 'https://careers.doordash.com',        category: 'marketplace',priority: 'high',   active: false },
+  { name: 'DoorDash',     provider: 'greenhouse',      identifier: 'doordash',      careerUrl: 'https://careers.doordash.com',        category: 'marketplace',priority: 'high',   active: true  },
   { name: 'Instacart',    provider: 'greenhouse',      identifier: 'instacart',     careerUrl: 'https://instacart.careers',           category: 'marketplace',priority: 'medium', active: true  },
   { name: 'eBay',         provider: 'greenhouse',      identifier: 'ebay',          careerUrl: 'https://jobs.ebayinc.com',            category: 'ecommerce',  priority: 'low',    active: false },
 
@@ -117,7 +129,7 @@ const COMPANIES = [
 
   // ─── Communication / Social ────────────────────────────────────────────
   { name: 'Discord',      provider: 'greenhouse',      identifier: 'discord',       careerUrl: 'https://discord.com/jobs',            category: 'social',     priority: 'high',   active: true  },
-  { name: 'Slack',        provider: 'greenhouse',      identifier: 'slack',         careerUrl: 'https://slack.com/careers',           category: 'productivity', priority: 'medium', active: false },
+  { name: 'Slack',        provider: 'greenhouse',      identifier: 'slack',         careerUrl: 'https://slack.com/careers',           category: 'productivity', priority: 'medium', active: true  },
   { name: 'Zoom',         provider: 'greenhouse',      identifier: 'zoom',          careerUrl: 'https://careers.zoom.us',             category: 'communication', priority: 'medium', active: false },
   { name: 'Calendly',     provider: 'greenhouse',      identifier: 'calendly',      careerUrl: 'https://calendly.com/jobs',           category: 'productivity', priority: 'low',  active: true  },
 
@@ -126,7 +138,7 @@ const COMPANIES = [
   { name: 'Twitch',       provider: 'greenhouse',      identifier: 'twitch',        careerUrl: 'https://www.twitch.tv/jobs',          category: 'media',      priority: 'medium', active: true  },
   { name: 'Reddit',       provider: 'greenhouse',      identifier: 'reddit',        careerUrl: 'https://www.redditinc.com/careers',   category: 'social',     priority: 'medium', active: true  },
   { name: 'Pinterest',    provider: 'greenhouse',      identifier: 'pinterest',     careerUrl: 'https://careers.pinterest.com',       category: 'social',     priority: 'medium', active: true  },
-  { name: 'Snap',         provider: 'greenhouse',      identifier: 'snap',          careerUrl: 'https://careers.snap.com',            category: 'social',     priority: 'medium', active: false },
+  { name: 'Snap',         provider: 'greenhouse',      identifier: 'snap',          careerUrl: 'https://careers.snap.com',            category: 'social',     priority: 'medium', active: true  },
 
   // ─── Gaming ───────────────────────────────────────────────────────────────
   { name: 'Roblox',       provider: 'greenhouse',      identifier: 'roblox',        careerUrl: 'https://corp.roblox.com/careers',     category: 'gaming',     priority: 'medium', active: true  },

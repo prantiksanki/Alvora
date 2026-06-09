@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, LogOut, CheckCircle2,
   BarChart2, FlaskConical, Trophy, CalendarCheck2, SlidersHorizontal,
-  FolderKanban, ClipboardList, Inbox, RadioTower,
+  FolderKanban, ClipboardList, Inbox, RadioTower, FileText,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useEmails } from '../../hooks/useEmails';
@@ -19,7 +19,8 @@ const NAV_ITEMS = [
   { path: '/job-tracker/applications', label: 'Applications',   icon: ClipboardList },
   { path: '/job-tracker/emails',       label: 'Email Accounts', icon: Inbox         },
   { type: 'section', label: 'Job Intel' },
-  { path: '/live-jobs', label: 'Live Jobs', icon: RadioTower },
+  { path: '/live-jobs', label: 'Live Jobs',     icon: RadioTower },
+  { path: '/resume',    label: 'Resume Tailor', icon: FileText   },
 ];
 
 const Sidebar = ({ collapsed, onToggle }) => {

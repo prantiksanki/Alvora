@@ -10,6 +10,7 @@ const { fetchGfgStats } = require('../services/gfg/gfgService');
 const { fetchCodechefStats } = require('../services/codechef/codechefService');
 const { fetchAtcoderStats } = require('../services/atcoder/atcoderService');
 const { delCache } = require('../config/redis');
+const { awardXP, calculateSnapshotXP } = require('../services/gamification/xpEngine');
 const logger = require('../utils/logger');
 
 const FETCHERS = {
@@ -59,11 +60,21 @@ const runUserSync = async (profile) => {
       const rawData = await FETCHERS[platform](username);
       const stats = normalizeStats(platform, rawData);
 
+      // Get yesterday's snapshot to compute delta for XP
+      const yesterday = new Date(today.getTime() - 86400000);
+      const prevSnap = await Snapshot.findOne({ userId: profile.userId, platform, date: { $lt: today } }).sort({ date: -1 }).lean();
+
       await Snapshot.findOneAndUpdate(
         { userId: profile.userId, platform, date: today },
         { $set: stats },
         { upsert: true }
       );
+
+      // Award XP based on progress since last snapshot
+      const xpAwards = calculateSnapshotXP(platform, stats, prevSnap);
+      for (const { source, amount } of xpAwards) {
+        await awardXP(profile.userId, source, amount);
+      }
 
       // Bust analytics cache for this user
       await delCache(

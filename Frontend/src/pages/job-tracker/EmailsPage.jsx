@@ -1,25 +1,20 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail } from 'lucide-react';
+import { Mail, Plus, Zap, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useEmails } from '../../hooks/useEmails';
 import EmailCard from '../../components/emails/EmailCard';
-import ConnectEmailButton from '../../components/emails/ConnectEmailButton';
 import PageTransition from '../../components/animations/PageTransition';
-import FadeIn from '../../components/animations/FadeIn';
-import LoadingSkeleton from '../../components/ui/LoadingSkeleton';
-import Card from '../../components/ui/Card';
 
 export default function EmailsPage() {
   const { accounts, isLoading, syncingId, isConnecting, refetch, connectGmail, syncAccount, deleteAccount } = useEmails();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Handle OAuth callback redirect
   useEffect(() => {
     if (searchParams.get('connected') === 'true') {
-      toast.success('Gmail connected successfully! Starting initial sync...');
+      toast.success('Gmail connected! Starting initial sync…');
       refetch();
       window.history.replaceState({}, '', '/job-tracker/emails');
     }
@@ -30,102 +25,135 @@ export default function EmailsPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSync = (id) => syncAccount(id, {
+    onComplete: () => { refetch(); navigate('/job-tracker'); },
+  });
+
+  const handleDelete = (id) => deleteAccount(id, {
+    onComplete: () => navigate('/job-tracker'),
+  });
+
   return (
     <PageTransition>
-      <div className="space-y-6">
-        {/* Header */}
+      <div className="max-w-2xl space-y-8">
+
+        {/* ── Header ── */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">Email Accounts</h2>
-            <p className="text-gray-400 text-sm mt-1">
-              Connect your Gmail to automatically track job applications
+            <h2 className="text-2xl font-bold text-white tracking-tight">Email Accounts</h2>
+            <p className="text-gray-500 text-sm mt-1">
+              Connect Gmail to auto-track job applications from your inbox
             </p>
           </div>
-          <ConnectEmailButton onClick={connectGmail} isLoading={isConnecting} />
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={connectGmail}
+            disabled={isConnecting}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', boxShadow: '0 4px 16px rgba(139,92,246,0.25)' }}
+          >
+            {isConnecting
+              ? <RefreshCw size={14} className="animate-spin" />
+              : <Plus size={14} />}
+            {isConnecting ? 'Connecting…' : 'Connect Gmail'}
+          </motion.button>
         </div>
 
-        {/* Info banner */}
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-violet-500/8 border border-violet-500/20">
-          <div className="p-1.5 rounded-lg bg-violet-500/15 shrink-0 mt-0.5">
-            <Mail size={14} className="text-violet-400" />
+        {/* ── How it works strip ── */}
+        <div className="flex items-start gap-3 py-3.5 border-y border-white/5">
+          <div className="w-7 h-7 rounded-lg bg-violet-500/12 flex items-center justify-center shrink-0 mt-0.5">
+            <Zap size={13} className="text-violet-400" />
           </div>
           <div>
-            <p className="text-sm font-medium text-violet-300">How it works</p>
-            <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">
-              Connect your Gmail account and Alvora will automatically scan your inbox every 30 minutes,
-              detect job-related emails, and update your application tracker — no manual entry needed.
+            <p className="text-xs font-semibold text-violet-400 uppercase tracking-wider mb-0.5">How it works</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Alvora scans your inbox every 30 minutes, detects job-related emails, and updates your application tracker automatically — no manual entry needed.
             </p>
           </div>
         </div>
 
-        {/* Loading state */}
+        {/* ── Loading skeleton ── */}
         {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[0, 1].map((i) => <LoadingSkeleton.Card key={i} />)}
+          <div className="space-y-4">
+            {[0, 1].map((i) => (
+              <div key={i} className="flex items-center gap-4 py-4 border-b border-white/5 animate-pulse">
+                <div className="w-9 h-9 rounded-xl bg-white/5 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 bg-white/5 rounded w-48" />
+                  <div className="h-2.5 bg-white/4 rounded w-28" />
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Empty state */}
+        {/* ── Empty state ── */}
         {!isLoading && accounts.length === 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-col items-center justify-center py-20 text-center"
+            transition={{ duration: 0.35 }}
+            className="flex flex-col items-center justify-center py-24 text-center"
           >
-            <div className="p-5 rounded-2xl bg-violet-500/10 mb-5">
-              <Mail size={36} className="text-violet-400" />
+            <div className="w-14 h-14 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4">
+              <Mail size={24} className="text-violet-400" />
             </div>
-            <p className="text-white font-semibold text-lg mb-1">No email accounts connected</p>
-            <p className="text-gray-400 text-sm mb-6 max-w-xs">
-              Connect your Gmail to start tracking job applications automatically from your inbox.
+            <p className="text-base font-semibold text-white mb-1">No accounts connected</p>
+            <p className="text-sm text-gray-500 mb-6 max-w-xs leading-relaxed">
+              Connect your Gmail to start automatically tracking job applications from your inbox.
             </p>
-            <ConnectEmailButton onClick={connectGmail} isLoading={isConnecting} />
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={connectGmail}
+              disabled={isConnecting}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', boxShadow: '0 4px 16px rgba(139,92,246,0.25)' }}
+            >
+              <Plus size={14} />
+              Connect Gmail
+            </motion.button>
           </motion.div>
         )}
 
-        {/* Account cards */}
+        {/* ── Account list ── */}
         {!isLoading && accounts.length > 0 && (
-          <FadeIn stagger={0.06} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {accounts.map((account) => (
-              <FadeIn.Item key={account._id}>
-                <EmailCard
-                  account={account}
-                  onSync={(id) =>
-                    syncAccount(id, {
-                      onComplete: () => {
-                        refetch();              // refresh card to show updated lastSyncedAt
-                        navigate('/job-tracker'); // dashboard re-fetches fresh data on mount
-                      },
-                    })
-                  }
-                  onDelete={(id) =>
-                    deleteAccount(id, {
-                      onComplete: () => navigate('/job-tracker'),
-                    })
-                  }
-                  isSyncing={syncingId === account._id}
-                />
-              </FadeIn.Item>
-            ))}
-          </FadeIn>
-        )}
+          <div>
+            <p className="text-[11px] font-semibold text-gray-600 uppercase tracking-wider mb-1">
+              Connected · {accounts.length} {accounts.length === 1 ? 'account' : 'accounts'}
+            </p>
+            <div>
+              {accounts.map((account, i) => (
+                <motion.div
+                  key={account._id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.3 }}
+                >
+                  <EmailCard
+                    account={account}
+                    onSync={handleSync}
+                    onDelete={handleDelete}
+                    isSyncing={syncingId === account._id}
+                  />
+                </motion.div>
+              ))}
+            </div>
 
-        {/* "Connect another" card (when accounts exist) */}
-        {!isLoading && accounts.length > 0 && (
-          <Card
-            hover
-            onClick={connectGmail}
-            className="border-dashed cursor-pointer flex flex-col items-center justify-center py-8 gap-3"
-          >
-            <div className="p-3 rounded-xl bg-white/5">
-              <Mail size={20} className="text-gray-500" />
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-medium text-gray-400">Connect another account</p>
-              <p className="text-xs text-gray-600 mt-0.5">Add a second Gmail for more coverage</p>
-            </div>
-          </Card>
+            {/* Add another — inline row */}
+            <button
+              onClick={connectGmail}
+              disabled={isConnecting}
+              className="flex items-center gap-2 mt-2 py-3.5 w-full text-sm text-gray-600 hover:text-gray-400 transition-colors disabled:opacity-40 border-b border-white/5"
+            >
+              <div className="w-9 h-9 rounded-xl border border-dashed border-white/10 flex items-center justify-center shrink-0">
+                <Plus size={14} className="text-gray-600" />
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-medium text-gray-500">Add another account</p>
+                <p className="text-[10px] text-gray-700 mt-0.5">Connect a second Gmail for more coverage</p>
+              </div>
+            </button>
+          </div>
         )}
       </div>
     </PageTransition>

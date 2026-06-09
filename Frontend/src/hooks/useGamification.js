@@ -23,18 +23,20 @@ export function useGamification() {
   useEffect(() => {
     api.get('/gamification/profile')
       .then(({ data }) => setData(data))
-      .catch(() => setData(MOCK_GAMIFICATION))
+      .catch(() => {/* keep null — don't pollute with mock */})
       .finally(() => setIsLoading(false));
   }, []);
 
+  // While loading, return nullish so consumers can show a skeleton
+  // After load, use real data; only fall back to zeros if data is genuinely missing
   return {
-    totalXP: data?.totalXP || 0,
-    level: data?.level || 1,
-    levelName: data?.levelName || 'Beginner',
-    xpToNext: data?.xpToNext || 500,
-    badges: data?.badges || [],
-    badgeCount: data?.badgeCount || 0,
-    recentBadges: data?.recentBadges || [],
+    totalXP: data?.totalXP ?? 0,
+    level: data?.level ?? 1,
+    levelName: data?.levelName ?? 'Beginner',
+    xpToNext: data?.xpToNext ?? 500,
+    badges: data?.badges ?? [],
+    badgeCount: data?.badgeCount ?? 0,
+    recentBadges: data?.recentBadges ?? [],
     isLoading,
   };
 }

@@ -5,7 +5,6 @@ import PageTransition from '../../components/animations/PageTransition';
 import FilterSidebar from '../../components/jobs/FilterSidebar';
 import JobFeed from '../../components/jobs/JobFeed';
 import LiveJobCard from '../../components/jobs/LiveJobCard';
-import SubscriptionCard from '../../components/subscriptions/SubscriptionCard';
 import LiveActivityTicker from '../../components/live-feed/LiveActivityTicker';
 import { useJobs } from '../../hooks/useJobs';
 import { useLiveJobs } from '../../hooks/useLiveJobs';
@@ -16,7 +15,7 @@ import { useAppliedJobs } from '../../hooks/useAppliedJobs';
 export default function LiveJobsPage() {
   const { jobs, pagination, filters, isLoading, setFilter, setPage, clearFilters } = useJobs();
   const { jobs: liveJobs, isLoading: liveLoading, count: liveCount } = useLiveJobs();
-  const { subscription, saveSubscription, isSaving } = useSubscription();
+  const { subscription } = useSubscription();
   const { socket, isConnected, liveJobs: socketJobs } = useJobSocket();
   const { appliedIds, markApplied } = useAppliedJobs();
 
@@ -43,7 +42,7 @@ export default function LiveJobsPage() {
   }, [setFilter, clearFilters]);
 
   const hasActiveFilters =
-    !!(filters.company || filters.source || filters.employmentType || filters.remote || filters.search);
+    !!(filters.company || filters.source || filters.employmentType || filters.remote || filters.region || filters.search);
 
   const allLiveJobs = [...socketJobs, ...liveJobs].filter(
     (job, idx, arr) => arr.findIndex((j) => j._id === job._id) === idx
@@ -216,18 +215,12 @@ export default function LiveJobsPage() {
 
           {/* Right panel */}
           <div className="hidden xl:flex flex-col gap-4 w-64 shrink-0 border-l border-white/6 px-5 py-5">
-            <SubscriptionCard
-              subscription={subscription}
-              onSave={saveSubscription}
-              isSaving={isSaving}
-            />
             <LiveActivityTicker jobs={allLiveJobs} />
           </div>
         </div>
 
         {/* Right panel on smaller screens */}
-        <div className="xl:hidden px-8 pb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <SubscriptionCard subscription={subscription} onSave={saveSubscription} isSaving={isSaving} />
+        <div className="xl:hidden px-8 pb-6">
           <LiveActivityTicker jobs={allLiveJobs} />
         </div>
 

@@ -1,0 +1,44 @@
+%% Alvora Resume Template — ATS-optimized single-column
+%% Fixed sections: contact, education, experience
+%% Dynamic sections: skills, projects (injected by latexBuilder.js)
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[top=0.55in, bottom=0.55in, left=0.65in, right=0.65in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+\hypersetup{colorlinks=true, urlcolor=black, hidelinks}
+
+% Section formatting
+\titleformat{\section}{\bfseries\large}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{6pt}{4pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlist[itemize]{leftmargin=1.5em, topsep=2pt, itemsep=1pt, parsep=0pt}
+
+\pagestyle{empty}
+
+\begin{document}
+
+%% ─── CONTACT INFO ────────────────────────────────────────────────────────────
+%%CONTACT_SECTION%%
+
+%% ─── EDUCATION ───────────────────────────────────────────────────────────────
+%%EDUCATION_SECTION%%
+
+%% ─── EXPERIENCE ──────────────────────────────────────────────────────────────
+%%EXPERIENCE_SECTION%%
+
+%% ─── SKILLS ──────────────────────────────────────────────────────────────────
+%%SKILLS_SECTION%%
+
+%% ─── PROJECTS ────────────────────────────────────────────────────────────────
+%%PROJECTS_SECTION%%
+
+\end{document}

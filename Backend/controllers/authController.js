@@ -21,6 +21,7 @@ const signup = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    alertEmail: user.alertEmail,
     bio: user.bio,
     college: user.college,
     location: user.location,
@@ -51,6 +52,7 @@ const login = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    alertEmail: user.alertEmail,
     bio: user.bio,
     college: user.college,
     location: user.location,
@@ -61,19 +63,21 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const updateMe = asyncHandler(async (req, res) => {
-  const { name, bio, college, location, avatarColor } = req.body;
+  const { name, bio, college, location, avatarColor, alertEmail } = req.body;
   const allowed = {};
   if (name !== undefined) allowed.name = name.trim();
   if (bio !== undefined) allowed.bio = bio.trim();
   if (college !== undefined) allowed.college = college.trim();
   if (location !== undefined) allowed.location = location.trim();
   if (avatarColor !== undefined) allowed.avatarColor = avatarColor;
+  if (alertEmail !== undefined) allowed.alertEmail = alertEmail.trim().toLowerCase();
 
   const user = await User.findByIdAndUpdate(req.user._id, allowed, { new: true });
   res.status(200).json({
     _id: user._id,
     name: user.name,
     email: user.email,
+    alertEmail: user.alertEmail,
     bio: user.bio,
     college: user.college,
     location: user.location,

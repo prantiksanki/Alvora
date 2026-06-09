@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GitBranch, Code2, Trophy, BookOpen, Check, Flame, Star, Camera, User, MapPin, GraduationCap, FileText } from 'lucide-react';
+import { GitBranch, Code2, Trophy, BookOpen, Check, Flame, Star, Camera, User, MapPin, GraduationCap, FileText, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProfile } from '../hooks/useProfile';
 import { formatLongDate } from '../utils/formatters';
@@ -48,7 +48,7 @@ export default function SettingsPage() {
   const { user, updateUser } = useAuth();
   const { profile, updateProfile, isLoading, isSaving } = useProfile();
 
-  const [profileForm, setProfileForm] = useState({ name: '', bio: '', college: '', location: '', avatarColor: '#2563eb' });
+  const [profileForm, setProfileForm] = useState({ name: '', bio: '', college: '', location: '', avatarColor: '#2563eb', alertEmail: '' });
   const [platformForm, setPlatformForm] = useState({ githubUsername: '', leetcodeUsername: '', codeforcesUsername: '', gfgUsername: '', codechefUsername: '', atcoderUsername: '' });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [toast, setToast] = useState(null);
@@ -61,6 +61,7 @@ export default function SettingsPage() {
         college: user.college || '',
         location: user.location || '',
         avatarColor: user.avatarColor || '#2563eb',
+        alertEmail: user.alertEmail || '',
       });
     }
   }, [user]);
@@ -191,10 +192,23 @@ export default function SettingsPage() {
               />
             </Field>
 
+            {/* Alert Email */}
+            <Field icon={Mail} label="Alert Email">
+              <Input
+                type="email"
+                value={profileForm.alertEmail}
+                onChange={(e) => setProfileForm((p) => ({ ...p, alertEmail: e.target.value }))}
+                placeholder={user?.email || 'your@email.com'}
+              />
+              <p className="text-[10px] text-gray-600 mt-1">
+                Job alert emails go here. Leave empty to use your login email ({user?.email}).
+              </p>
+            </Field>
+
             {/* Account info row */}
             <div className="pt-2 border-t border-white/5 flex items-center justify-between">
               <div className="text-xs text-gray-600">
-                <span className="text-gray-500">Email: </span>{user?.email}
+                <span className="text-gray-500">Login: </span>{user?.email}
                 <span className="mx-3 text-gray-700">·</span>
                 <span className="text-gray-500">Joined: </span>{formatLongDate(user?.createdAt || new Date())}
               </div>

@@ -1,6 +1,7 @@
 const { Worker } = require('bullmq');
 const { bullConnection, delCache } = require('../../config/redis');
 const Snapshot = require('../../models/Snapshot');
+const { awardXP, calculateSnapshotXP } = require('../../services/gamification/xpEngine');
 const logger = require('../../utils/logger');
 
 const PLATFORM_SERVICES = {
@@ -37,12 +38,21 @@ const processSnapshot = async (job) => {
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
+  // Get previous snapshot for XP delta calculation
+  const prevSnap = await Snapshot.findOne({ userId, platform, date: { $lt: today } }).sort({ date: -1 }).lean();
+
   // Upsert: update today's snapshot if it already exists (user solved more problems)
   await Snapshot.findOneAndUpdate(
     { userId, platform, date: today },
     { $set: stats },
     { upsert: true }
   );
+
+  // Award XP based on progress since last snapshot
+  const xpAwards = calculateSnapshotXP(platform, stats, prevSnap);
+  for (const { source, amount } of xpAwards) {
+    await awardXP(userId, source, amount);
+  }
 
   // Bust the analytics cache so the next GET returns fresh data
   await delCache(
