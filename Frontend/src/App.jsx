@@ -23,6 +23,7 @@ import DailyProblemsPage from './pages/DailyProblemsPage';
 import PublicCardPage from './pages/PublicCardPage';
 import ResumeTailorPage from './pages/ResumeTailorPage';
 
+
 function AnimatedRoutes() {
   const location = useLocation();
   return (

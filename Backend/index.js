@@ -84,6 +84,11 @@ app.use('/api/potd', potdRoutes);
 app.use('/api/public/card', publicCardRoutes);
 app.use('/api/resume', resumeRoutes);
 
+app.get('/monitor', (req, res) =>
+{
+  res.send("Moniotoring every second") ; 
+})
+
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
 
